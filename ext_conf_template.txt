@@ -1,0 +1,24 @@
+# cat=Deepl Settings/O; type=boolean; label= Enable This Feature
+enableDeepl = 1
+# cat=Deepl Settings/O; type=string; label= Deepl API Key
+apiKey =
+# cat=Deepl Settings/O; type=string; label= Deepl API Url
+apiUrl = https://api-free.deepl.com/v2/translate
+# cat=Google Translate Settings/O; type=boolean; label= Enable This Feature
+enableGoogleTranslator = 1
+# cat=Google Translate Settings/O; type=string; label= Google translate API Key(Non freemode)
+googleapiKey =
+# cat=Google Translate Settings/O; type=string; label= Google translate API Url(Non freemode)
+googleapiUrl = https://translation.googleapis.com/language/translate/v2
+# cat=OpenAI Settings//10; type=boolean; label= Enable This Feature
+enableOpenAi = 1
+# cat=OpenAI Settings//11; type=string; label=API Key
+openaiapiKey =
+# cat=OpenAI Settings//12; type=options[gpt-4]; label=Model
+openaiapiModel = 
+# cat=Gemini settings//13; type=boolean; label= Enable This Feature
+enableGemini = 1
+# cat=Gemini settings//14; type=string; label=API Key
+opengoogleapiKey =
+# cat=Gemini settings//15; type=options[gemini-1.0-pro]; label=Model
+opengoogleapiModel = 
