@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
-    <file t3:id="1415814785" source-language="en" datatype="plaintext" original="messages" date="2011-10-17T20:22:32Z" product-name="ai_translate">
+    <file t3:id="1415814785" source-language="en" datatype="plaintext" original="messages" date="2011-10-17T20:22:32Z" product-name="deepltranslate">
         <header/>
         <body>
             <trans-unit id="localize.educate.deepltranslate" xml:space="preserve">
@@ -18,7 +18,7 @@
             <trans-unit id="localize.educate.geminiai" xml:space="preserve">
                 <source>Google Gemini AI can translate between languages with a high degree of accuracy. This makes it ideal for tasks such as real-time translation, document translation, and website translation. Please note that the translation is limited to AI's Capabilities.
                 </source>
-            </trans-unit>            
+            </trans-unit>   
             <trans-unit id="localize.educate.googleTranslate" xml:space="preserve">
                 <source>Translating content via Google Translate will create a translation  from source language to the language you translate to.The translated content will be from Google translation service.Google service supports a fair share of <![CDATA[<a href="https://cloud.google.com/translate/docs/languages" target="_blank">languages</a>]]>.
                 </source>
@@ -51,6 +51,37 @@
             <trans-unit id="mlang_tabs_tab" xml:space="preserve">
                 <source>AI Translate</source>
             </trans-unit>
+            <trans-unit id="localize.wizard.button.deepl" xml:space="preserve">
+                <source><![CDATA[Translate<br>(deepl)]]></source>
+            </trans-unit>
+            <trans-unit id="localize.wizard.button.deeplauto" xml:space="preserve">
+                <source><![CDATA[Translate<br>(deepl)<br>(autodetect)]]></source>
+            </trans-unit>
+             <trans-unit id="localize.wizard.button.google" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Google)]]></source>
+            </trans-unit>
+            <trans-unit id="localize.wizard.button.googleauto" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Google)<br>(autodetect)]]></source>
+            </trans-unit>
+            <trans-unit id="localize.wizard.button.openai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(OpenAI)]]></source>
+            </trans-unit>
+            <trans-unit id="localize.wizard.button.geminiai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Gemini)]]></source>
+            </trans-unit>
+            <trans-unit id="localization.labels.deeplSettingsFailure" xml:space="preserve">
+                <source>Please complete missing deepl configurations.</source>
+            </trans-unit>
+            <trans-unit id="localization.labels.googleSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Google translator configurations.</source>
+            </trans-unit>
+            <trans-unit id="localization.labels.openaiSettingsFailure" xml:space="preserve">
+                <source>Please complete missing OpenAI configurations.</source>
+            </trans-unit>
+            <trans-unit id="localization.labels.geminiSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Gemini configurations.</source>
+            </trans-unit>
+            
         </body>
     </file>
 </xliff>

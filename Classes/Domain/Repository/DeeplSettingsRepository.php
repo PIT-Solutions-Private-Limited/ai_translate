@@ -4,8 +4,7 @@ namespace PITS\AiTranslate\Domain\Repository;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2024 Pits <contact@pitsolutions.com>, PIT Solutions
- *      
+ *  (c) 2024 Developer <contact@pitsolutions.com>, PIT Solutions
  *
  *  You may not remove or change the name of the author above. See:
  *  http://www.gnu.org/licenses/gpl-faq.html#IWantCredit

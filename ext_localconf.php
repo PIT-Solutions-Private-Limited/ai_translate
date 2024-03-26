@@ -1,11 +1,9 @@
 <?php
-defined('TYPO3_MODE') or die();
+defined('TYPO3') or die();
 use TYPO3\CMS\Backend\Controller\PageLayoutController;
+use Psr\Http\Message\ServerRequestInterface;
+use TYPO3\CMS\Core\Http\ApplicationType;
 
-
-\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addPageTSConfig(
-    '<INCLUDE_TYPOSCRIPT: source="FILE:EXT:ai_translate/Configuration/TsConfig/Page/pagetsconfig.txt">'
-);
 //hook for translate content
 $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['t3lib/class.t3lib_tcemain.php']['processTranslateToClass']['deepl'] = 'PITS\\AiTranslate\\Hooks\\TranslateHook';
 //hook for overriding localization.js,recordlist.js and including deepl.css
@@ -20,10 +18,6 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Backend\\Controller\\
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Recordlist\\RecordList\\DatabaseRecordList'] = array(
     'className' => 'PITS\\AiTranslate\\Override\\DatabaseRecordList',
 );
-
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][PageLayoutController::class] = [
-    'className' => PITS\AiTranslate\Xclass\PageLayoutControllerXclass::class
-];
 
 
 

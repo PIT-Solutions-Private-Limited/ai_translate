@@ -12,7 +12,8 @@ You can install the extension using:
 
 Once installed ,there appears a AI Translate back end module with a settings tab.
 ## Requirements
-- TYPO3 11
+- TYPO3 11 (2.1.0)
+- TYPO3 12 (3.1.0)
 
 ## Extension Configuartion
 
@@ -41,8 +42,6 @@ Example : ``` typo3conf/ext/theme/Configuration/TCA/Overrides/tx_news_domain_mod
 
 ```
 <?php
-
-defined('TYPO3_MODE') or die();
 
 $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['bodytext']['l10n_mode'] = 'prefixLangTitle';
 $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['teaser']['l10n_mode'] = 'prefixLangTitle';

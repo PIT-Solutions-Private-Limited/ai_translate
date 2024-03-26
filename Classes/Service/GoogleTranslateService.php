@@ -4,8 +4,7 @@ namespace PITS\AiTranslate\Service;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2024 Pits <contact@pitsolutions.com>, PIT Solutions
- *      
+ *  (c) 2024 Developer <contact@pitsolutions.com>, PIT Solutions
  *
  *  You may not remove or change the name of the author above. See:
  *  http://www.gnu.org/licenses/gpl-faq.html#IWantCredit
@@ -91,7 +90,7 @@ class GoogleTranslateService
         if ($this->apiKey != '' && $this->apiUrl != '') {
             $url    = $this->apiUrl . '?key=' . $this->apiKey;
             $fields = array(
-                'source' => '',
+                'source' => urlencode($source),
                 'target' => urlencode($target),
                 'q'      => $text,
             );
@@ -101,7 +100,7 @@ class GoogleTranslateService
             $url = "https://translate.google.com/translate_a/single?client=at&dt=t&dt=ld&dt=qca&dt=rm&dt=bd&dj=1&hl=es-ES&ie=UTF-8&oe=UTF-8&inputm=2&otf=2&iid=1dd3b944-fa62-4b55-b330-74909a99969e";
 
             $fields = array(
-                'sl' => '',
+                'sl' => urlencode($source),
                 'tl' => urlencode($target),
                 'q'  => $text,
             );
@@ -130,16 +129,14 @@ class GoogleTranslateService
                 'headers'     => ['Content-Type: application/x-www-form-urlencoded', 'Content-Length:' . $contentLength, 'charset=utf-8'],
             ]);
         } catch (ClientException $e) {
-            $result['status']  = 'false';
+            $result['status']  = false;
             if($e->getCode() == 400 || $e->getCode() == 404){
-              $result['message'] = "Please give proper api key and api url";
+              $result['message'] = "Invalid api key or url";
             }
             else{
               $result['message'] = $e->getMessage();
             }
-            $result            = json_encode($result);
-            echo $result;
-            exit;
+            return $result;
         }
 
         return json_decode($response->getBody()->getContents(), true);
@@ -154,7 +151,7 @@ class GoogleTranslateService
     {
         $translation = "";
         if ($this->apiKey != '' && $this->apiUrl != '') {
-            $translation = $response['data']['translations'][0]['translatedText'];
+            $translation = isset($response['data']) ? $response['data']['translations'][0]['translatedText'] : $response;
         } else {
             foreach ($response["sentences"] as $text) {
                 $text = self::googleTranslationPostprocess($text);
@@ -181,7 +178,13 @@ class GoogleTranslateService
 
     public function validateCredentials() {
         $response = $this->translate('en', 'de','Test');
+        if(!is_array($response)){
+            $result['status']  = true;
+            return $result;
+        }
+        else{
+            return $response;
+        }
     }
-
 
 }

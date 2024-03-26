@@ -19,8 +19,10 @@ class GeminiTranslateService
         $this->requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
 
         // Load configuration from TYPO3
-        $extConf = $GLOBALS["TYPO3_CONF_VARS"]["EXTENSIONS"]["ai_translate"];
-        $this->apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/'.$extConf["opengoogleapiModel"].':generateContent?key=' . $extConf["opengoogleapiKey"];
+        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $this->apiModel = isset($extConf["opengoogleapiModel"]) ? $extConf["opengoogleapiModel"] : '';
+        $this->apiKey = isset($extConf["opengoogleapiKey"]) ? $extConf["opengoogleapiKey"] : '';
+        $this->apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/'.$this->apiModel.':generateContent?key=' . $this->apiKey;
     }   
     
     /**
@@ -104,9 +106,9 @@ class GeminiTranslateService
 			curl_close($ch);
 
 			// Decode and assign the response
-			$responseArray = json_decode($response, true);  
-			$generatedText = '';
-            if(isset($responseArray['candidates'])){
+			$responseArray = json_decode($response, true);
+            $generatedText = ''; 
+            if(isset($responseArray['candidates'])){ 
                 $generatedText = isset($responseArray['candidates'][0]['content']) ? $responseArray['candidates'][0]['content']['parts'][0]['text']: '';
             }
 			else if(isset($responseArray['error']['code']) && $responseArray['error']['code']==400) {
@@ -117,20 +119,19 @@ class GeminiTranslateService
 		} catch (Exception $e) {
 			// Handle exceptions
             throw new \Exception($e->getMessage());
-		}
-	} 
+        }
+    }
 
-    public function validateCredentials() {
-        $response = $this->translateRequest('Test','de', 'en',);
+
+	public function validateCredentials() {
+        $response = $this->translateRequest('Test','DE', 'EN',);
+		$result['status']  = true;
 		if($response==400) {
 			$result            = [];
-            $result['status']  = 'false';
-			$result['message'] = 'Please give proper api key and url';  
-            $result = json_encode($result);
-            echo $result;
-            exit;			
+            $result['status']  = false;
+			$result['message'] = 'Invalid api key or url';
 		}
-
+		
+		return $result;
     }     
-    
 }

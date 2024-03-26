@@ -4,8 +4,7 @@ namespace PITS\AiTranslate\Service;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2024 Pits <contact@pitsolutions.com>, PIT Solutions
- *      
+ *  (c) 2024 Developer <contact@pitsolutions.com>, PIT Solutions
  *
  *  You may not remove or change the name of the author above. See:
  *  http://www.gnu.org/licenses/gpl-faq.html#IWantCredit
@@ -34,6 +33,7 @@ use PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use GuzzleHttp\Client;
+use TYPO3\CMS\Core\Http\JsonResponse;
 
 class DeeplService
 {
@@ -95,7 +95,7 @@ class DeeplService
         $postFields = [
             'auth_key'     => $this->apiKey,
             'text'         => $content,
-            'source_lang'  => '',
+            'source_lang'  => urlencode($sourceLanguage),
             'target_lang'  => urlencode($targetLanguage),
             'tag_handling' => urlencode('xml'),
         ];
@@ -113,27 +113,28 @@ class DeeplService
             ]);
         } catch (ClientException $e) {
             $result            = [];
-            $result['status']  = 'false';
+            $result['status']  = false;
             if($e->getResponse()->getStatusCode()!='403') {
                 $result['message'] = $e->getMessage();
             }
             else {
-                $result['message'] = 'Please give proper api key and url';  
+                $result['message'] = 'Invalid api key or url';  
             }
-            $result = json_encode($result);
-            echo $result;
-            exit;
+            return $result;
         }
         return json_decode($response->getBody()->getContents());
     }
 
     public function validateCredentials() {
-       $response = $this->translateRequest('Test', 'de', 'en');
+        $response = $this->translateRequest('Test', 'de', 'en');
         if (!empty($response) && isset($response->translations)) {
-            return true;
+            $result['status']  = true;
         }
-       return false;
-
+        else{
+            $result = $response;
+        }
+        
+       return $result;
     }
 
 }

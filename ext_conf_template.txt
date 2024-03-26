@@ -22,3 +22,7 @@ enableGemini = 1
 opengoogleapiKey =
 # cat=Gemini settings//15; type=options[gemini-1.0-pro]; label=Model
 opengoogleapiModel = 
+
+
+
+

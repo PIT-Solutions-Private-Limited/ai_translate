@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2024 Pits Kuruvilla <contact@pitsolutions.com>
+*  (c) 2024 Ricky Mathew Kuruvilla <ricky.mk@pitsolutions.com>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is

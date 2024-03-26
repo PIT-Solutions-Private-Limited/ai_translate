@@ -7,24 +7,31 @@
  * but will be extended further.
  */
 return [
-    // Localize the records
+    // Check deepl settings
     'records_localizedeepl' => [
         'path' => '/records/localizedeepl',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkdeeplSettings'
     ],
+
+    // Check google settings
     'records_localizegoogle' => [
-        'path' => '/records/localizegooglel',
+        'path' => '/records/localizegoogle',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkgoogleSettings'
     ],
+
+    // Check openai settings
     'records_localizeopenai' => [
         'path' => '/records/localizeopenai',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkopenaiSettings'
-    ],	
+    ],
+    
+    // Check gemini settings
     'records_localizegemini' => [
         'path' => '/records/localizegemini',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkgeminiSettings'
     ],		
-    // Check Deepl enabled 
+
+    // check translation options are enabled or diabled
     'records_settingsenabled' => [
         'path' => '/records/settingsenabled',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkSettingsEnabled'

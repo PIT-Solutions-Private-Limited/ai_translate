@@ -4,8 +4,7 @@ namespace PITS\AiTranslate\Hooks;
 /***************************************************************
  *  Copyright notice
  *
- *  (c) 2024 Pits <contact@pitsolutions.com>, PIT Solutions
- *      
+ *  (c) 2024 Developer <contact@pitsolutions.com>, PIT Solutions
  *
  *  You may not remove or change the name of the author above. See:
  *  http://www.gnu.org/licenses/gpl-faq.html#IWantCredit
@@ -39,7 +38,8 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ApplicationType;
-use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Site\SiteFinder;
 
 class TranslateHook
 {
@@ -54,25 +54,39 @@ class TranslateHook
      */
     protected $googleService;
 
-     /**
+    /**
      * @var \PITS\AiTranslate\Service\OpenAiService
      */
     protected $openAiService;
 
-     /**
+    /**
      * @var \PITS\AiTranslate\Service\GeminiTranslateService
      */
     protected $geminiAiService;    
+
 
     /**
      * @var \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository
      */
     protected $deeplSettingsRepository;
+
+    /**
+     * siteFinder
+     * @var \TYPO3\CMS\Core\Page\SiteFinder
+     * 
+     */
+    protected $siteFinder;
 	
 	public function injectDeeplSettingsRepository(DeeplSettingsRepository $deeplSettingsRepository)
     {
         $this->deeplSettingsRepository = $deeplSettingsRepository;
     }
+
+    public function injectSiteFinder(SiteFinder $siteFinder)
+    {
+        $this->siteFinder = $siteFinder;
+    }
+
 
 
     /**
@@ -86,6 +100,7 @@ class TranslateHook
         $this->openAiService           = GeneralUtility::makeInstance(OpenAiService::class);
         $this->geminiAiService           = GeneralUtility::makeInstance(GeminiTranslateService::class);
         $this->deeplSettingsRepository = GeneralUtility::makeInstance(DeeplSettingsRepository::class);
+        $this->siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
     }
 
     /**
@@ -106,29 +121,35 @@ class TranslateHook
             }
             break;
         }
-        $customMode = $cmdmap['localization']['custom']['mode'];
+        $customMode = $cmdmap['localization']['custom']['mode'] ?? null;
+        if ($customMode === null) {
+            return $content;
+        }
         //translation mode set to deepl or google translate
         if (!is_null($customMode)) {
             $langParam          = explode('-', $cmdmap['localization']['custom']['srcLanguageId']);
             $sourceLanguageCode = $langParam[0];
-            $targetLanguage     = BackendUtility::getRecord('sys_language', $this->getLanguageUidFromTitle($languageRecord['title']));
-            $sourceLanguage     = BackendUtility::getRecord('sys_language', (int) $sourceLanguageCode);
-            //get target language mapping if any
-            $targetLanguageMapping = $this->deeplSettingsRepository->getMappings($targetLanguage['uid']);
-            if ($targetLanguageMapping != null) {
-                $targetLanguage['language_isocode'] = $targetLanguageMapping;
+            $sites = $this->siteFinder->getAllSites();
+            foreach($sites as $site){
+                $targetLanguage = $site->getLanguageById($languageRecord['uid'])->toArray();
+                $sourceLanguage = $site->getLanguageById((int) $sourceLanguageCode)->toArray();
             }
-
+            
+            //get target language mapping if any
+            $targetLanguageMapping = $this->deeplSettingsRepository->getMappings($targetLanguage['languageId']);
+            if ($targetLanguageMapping != null) {
+                $targetLanguage['twoLetterIsoCode'] = $targetLanguageMapping;
+            }
             if ($sourceLanguage == null) {
                 $sourceLanguageIso = 'en';
                 //choose between default and autodetect
                 $deeplSourceIso = ($sourceLanguageCode == 'auto' ? null : 'EN');
             } else {
-                $sourceLanguageMapping = $this->deeplSettingsRepository->getMappings($sourceLanguage['uid']);
+                $sourceLanguageMapping = $this->deeplSettingsRepository->getMappings($sourceLanguage['languageId']);
                 if ($sourceLanguageMapping != null) {
-                    $sourceLanguage['language_isocode'] = $sourceLanguageMapping;
+                    $sourceLanguage['twoLetterIsoCode'] = $sourceLanguageMapping;
                 }
-                $sourceLanguageIso = $sourceLanguage['language_isocode'];
+                $sourceLanguageIso = $sourceLanguage['twoLetterIsoCode'];
                 $deeplSourceIso    = $sourceLanguageIso;
             }
             if ($this->isHtml($content)) {
@@ -137,17 +158,17 @@ class TranslateHook
             //mode deepl
             if ($customMode == 'deepl') {
                 //if target language and source language among supported languages
-                if (in_array(strtoupper($targetLanguage['language_isocode']), $this->deeplService->apiSupportedLanguages)) {
+                if (in_array(strtoupper($targetLanguage['twoLetterIsoCode']), $this->deeplService->apiSupportedLanguages)) {
 
                     if ($tablename == 'tt_content') {
-                        $response = $this->deeplService->translateRequest($content, $targetLanguage['language_isocode'], $deeplSourceIso);
-                       
+                        $response = $this->deeplService->translateRequest($content, $targetLanguage['twoLetterIsoCode'], $deeplSourceIso);
+
                     } else {
                         $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
                         $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
 
                         if (!empty($selectedTCAvalues)) {
-                            $response = $this->deeplService->translateRequest($selectedTCAvalues, $targetLanguage['language_isocode'], $sourceLanguage['language_isocode']);
+                            $response = $this->deeplService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
                     }
                     if (!empty($response) && isset($response->translations)) {
@@ -163,14 +184,14 @@ class TranslateHook
             //mode google
             elseif ($customMode == 'google') {
                 if ($tablename == 'tt_content') {
-                    $response = $this->googleService->translate($deeplSourceIso, $targetLanguage['language_isocode'], $content);
+                    $response = $this->googleService->translate($deeplSourceIso, $targetLanguage['twoLetterIsoCode'], $content);
 
                 } else {
                     $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
                     $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
 
                     if (!empty($selectedTCAvalues)) {
-                        $response = $this->googleService->translate($sourceLanguage['language_isocode'], $targetLanguage['language_isocode'], $selectedTCAvalues);
+                        $response = $this->googleService->translate($sourceLanguage['twoLetterIsoCode'], $targetLanguage['twoLetterIsoCode'], $selectedTCAvalues);
                     }
                 }
                 if (!empty($response)) {
@@ -184,45 +205,42 @@ class TranslateHook
             }
 
             elseif ($customMode == 'openai') {
-                if (in_array(strtoupper($targetLanguage['language_isocode']), $this->deeplService->apiSupportedLanguages)) 
+                if (in_array(strtoupper($targetLanguage['twoLetterIsoCode']), $this->deeplService->apiSupportedLanguages)) 
                 {
-
                     if ($tablename == 'tt_content') {
-                        $response = $this->openAiService->translateRequest($content, $targetLanguage['language_isocode'], $deeplSourceIso);
+                        $response = $this->openAiService->translateRequest($content, $targetLanguage['twoLetterIsoCode'], $deeplSourceIso);
                     }
                     else {
                         $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
                         $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
 
                         if (!empty($selectedTCAvalues)) {
-                            $response = $this->openAiService->translateRequest($selectedTCAvalues, $targetLanguage['language_isocode'], $sourceLanguage['language_isocode']);
+                            $response = $this->openAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
                     }   
                     $content = $response;
    
                 }
-            }    
+            }
+
             elseif ($customMode == 'geminiai') {
-                if (in_array(strtoupper($targetLanguage['language_isocode']), $this->deeplService->apiSupportedLanguages)) 
+                if (in_array(strtoupper($targetLanguage['twoLetterIsoCode']), $this->deeplService->apiSupportedLanguages)) 
                 {
                     if ($tablename == 'tt_content') {
-                        $response = $this->geminiAiService->translateRequest($content, $targetLanguage['language_isocode'], $deeplSourceIso);
+                        $response = $this->geminiAiService->translateRequest($content, $targetLanguage['twoLetterIsoCode'], $deeplSourceIso);
                     }
                     else {
                         $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
                         $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
 
                         if (!empty($selectedTCAvalues)) {
-                            $response = $this->geminiAiService->translateRequest($selectedTCAvalues, $targetLanguage['language_isocode'], $sourceLanguage['language_isocode']);
+                            $response = $this->geminiAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
                     }   
                     $content = $response;
    
                 }
             } 
-
-             
-            //
         }
     }
 
@@ -237,7 +255,7 @@ class TranslateHook
         ) {
             return;
         }
-        
+
         //include deepl.css
         if (is_array($hook['cssFiles'])) {
             $hook['cssFiles']['EXT:ai_translate/Resources/Public/Css/deepl-min.css'] = [
@@ -251,12 +269,17 @@ class TranslateHook
                 'splitChar'                => '|',
             ];
         }
-       
-  
         
+        //override Localization.js V12 update: overrided in JavaScriptModules.php
+        //$pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PageRenderer::class);
+        //$pageRenderer->loadJavaScriptModule('@typo3/backend/localization.js'); 
+
         //inline js for adding deepl button on records list.
-        if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
-          $hook['jsInline']['RecordListInlineJS']['code'] = "function deeplTranslate(a,b){ $('#deepl-translation-enable-' + b).parent().parent().siblings().each(function() { var testing = $( this ).attr( 'href' ); if(document.getElementById('deepl-translation-enable-' + b).checked == true){ var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } else { var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } }); }";
+        $translationButton = "function deeplTranslate(a,b){ $('#deepl-translation-enable-' + b).parent().parent().siblings().each(function() { var testing = $( this ).attr( 'href' ); if(document.getElementById('deepl-translation-enable-' + b).checked == true){ var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } else { var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } }); }";
+        if (isset($hook['jsInline']['RecordListInlineJS']['code'])){
+            $hook['jsInline']['RecordListInlineJS']['code'] .= $translationButton;
+        }else{
+            $hook['jsInline']['RecordListInlineJS']['code'] = $translationButton;
         }
     }
 
@@ -308,26 +331,5 @@ class TranslateHook
             }
         }
     }
-
-     /**
-     * Get language ISO code from title
-     *
-     * @param string $title
-     * @return string|null
-     */
-    public function getLanguageUidFromTitle($title)
-    {
-        $queryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('sys_language');
-        $query = $queryBuilder
-            ->select('uid')
-            ->from('sys_language')
-            ->where(
-                $queryBuilder->expr()->eq('title', $queryBuilder->createNamedParameter($title))
-            )
-            ->setMaxResults(1);
-
-        $result = $query->execute()->fetch();
-        return $result ? $result['uid'] : null;
-    }   
 
 }

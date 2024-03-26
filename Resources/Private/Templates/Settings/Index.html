@@ -2,8 +2,8 @@
 <f:section name="content">
 <div class="module-deepl">
     <div class="module-header">
-        <f:image src="EXT:ai_translate/Resources/Public/Icons/ai.svg" alt="alt text" width="37" height="37" class="pull-left"/>
-        <h3 class="pull-left"><f:translate key="deepl_settings"/></h3>
+        <f:image src="EXT:ai_translate/Resources/Public/Icons/actions-localize-deepl.svg" alt="alt text" width="37" height="37" class="pull-left"/>
+        <h1 class="pull-left"><f:translate key="deepl_settings"/></h1>
     </div>
     <div class="module-body">
            <h5><f:translate key="settings_assign"/></h5>
@@ -19,10 +19,10 @@
                         </tr>
                         <f:for each="{selectBox}" as="sysLanguage" key="deeplIso">
                           <tr>
-                            <td>{sysLanguage.uid}</td>
+                            <td>{sysLanguage.languageId}</td>
                             <td>{sysLanguage.title}</td>
                             <td>
-                              <f:form.textfield name="languages[{sysLanguage.uid}]"  maxlength="5" class="languageAssigned"  value="{sysLanguage.value}"/>
+                              <f:form.textfield name="languages[{sysLanguage.languageId}]"  maxlength="5" class="languageAssigned"  value="{sysLanguage.value}"/>
                             </td>
                           </tr>
                         </f:for>

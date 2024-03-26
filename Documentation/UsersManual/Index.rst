@@ -19,7 +19,7 @@ Installation
 
 Requirements
 -------------------
-* Typo3 11
+* Typo3 12
 
 Extension Configuartion
 --------------------------------
