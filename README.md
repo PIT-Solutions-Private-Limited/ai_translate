@@ -1,17 +1,17 @@
+# AI Translate
 
-## What does it do?
 This extension provides option to translate content elements and tca record fields to desired language(supported by deepl). As a fallback, Google,openai,gemini translate option is also provided as they provide support for many languages that deepl isn't providing.
-
 For both Deepl translate and Google translate, there are two modes-normal and autodetect, where the later autodetects source language and translates it to the desired language.
 For openai and gemini autodetects source language and translates it to the desired language.
 
 ## Installation
-You can install the extension using: 
-- Extension manager or 
-- composer  ``` composer req pits/ai_translate ```
 
-Once installed ,there appears a AI Translate back end module with a settings tab.
+1. Install the "ai_translate" extension in the standard TYPO3 way.
+2. Once the extension is installed, it will be accessible in the left menu in the TYPO3 backend.
+3. Click on the "AI Translate" option in the left menu to access languages settings.
+
 ## Requirements
+
 - TYPO3 11 (2.1.0)
 - TYPO3 12 (3.1.0)
 
@@ -53,6 +53,6 @@ The settings module helps to assign the sytem languages to either deepl supporte
 
 For example you can assign German under Austrian German sys language if you wish. For assigning a language to a sys language you must enter it’s isocode(ISO 639-1).
 
-## FAQ
+## Changelog
 
-See faq [here](https://docs.typo3.org/typo3cms/extensions/ai_translate/Faq/Index.html) 
+- 3.1.0: initial release
