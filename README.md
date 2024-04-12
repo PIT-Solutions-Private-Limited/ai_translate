@@ -14,7 +14,7 @@ For openai and gemini autodetects source language and translates it to the desir
 
 Watch our instruction video to get an overview of the extension and how to use it.
 
-[![TYPO3 AI Translate](https://img.youtube.com/vi/sjmd4zHjXwY/0.jpg)](http://www.youtube.com/watch?v=Yy0p5FH1P_M "AI Translate for TYPO3"
+[![TYPO3 AI Translate](https://img.youtube.com/vi/sjmd4zHjXwY/0.jpg)](https://www.youtube.com/watch?v=sjmd4zHjXwY "AI Translate for TYPO3")
 
 ## Requirements
 
