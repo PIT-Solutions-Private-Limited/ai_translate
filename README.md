@@ -10,6 +10,12 @@ For openai and gemini autodetects source language and translates it to the desir
 2. Once the extension is installed, it will be accessible in the left menu in the TYPO3 backend.
 3. Click on the "AI Translate" option in the left menu to access languages settings.
 
+## How to use:
+
+Watch our instruction video to get an overview of the extension and how to use it.
+
+[![TYPO3 AI Translate](https://img.youtube.com/vi/sjmd4zHjXwY/0.jpg)](http://www.youtube.com/watch?v=Yy0p5FH1P_M "AI Translate for TYPO3"
+
 ## Requirements
 
 - TYPO3 11 (2.1.0)
