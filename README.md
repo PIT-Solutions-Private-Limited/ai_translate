@@ -44,7 +44,7 @@ Claude AI anthropic has request per minute limitation for free account See detai
 
 ## Translating TCA records
 
-AiTranslate supports translation of specific fields of TCA records.It understands fields which need to be translated, only if their ``` l10n_mode ``` is set to ``` prefixLangTitle ```.
+AITranslate supports translation of specific fields of TCA records.It understands fields which need to be translated, only if their ``` l10n_mode ``` is set to ``` prefixLangTitle ```.
 
 For example if you need translation of fields of tx_news (teaser and bodytext),You need to override those fields like follows:
 
