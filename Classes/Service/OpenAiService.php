@@ -50,7 +50,7 @@ class OpenAiService
     public function translateGptFourRequest($content, $targetLanguage, $sourceLanguage)
     {
         try {
-            
+            $maxTokens = ($this->apiModel=='gpt-4') ? 7000 : 4095;
             $finalPrompt = sprintf($this->prompt, $targetLanguage) . $content;
             $jsonContent = [
                 "model" => $this->apiModel,
@@ -58,7 +58,7 @@ class OpenAiService
                     ["role" => "user", "content" => "Gpt4"],
                     ["role" => "assistant", "content" => $finalPrompt],
                 ],
-                "max_tokens" => 7000,
+                "max_tokens" => $maxTokens,
             ];
             $response = $this->makeRequest(self::GPT4_ENDPOINT, $jsonContent);
         } catch (ClientException $e) {

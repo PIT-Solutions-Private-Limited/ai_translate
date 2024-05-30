@@ -35,11 +35,13 @@ use PITS\AiTranslate\Service\DeeplService;
 use PITS\AiTranslate\Service\GoogleTranslateService;
 use PITS\AiTranslate\Service\OpenAiService;
 use PITS\AiTranslate\Service\GeminiTranslateService;
+use PITS\AiTranslate\Service\ClaudeTranslateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\TypoScript\TemplateService;
 
 class TranslateHook
 {
@@ -62,7 +64,14 @@ class TranslateHook
      /**
      * @var \PITS\AiTranslate\Service\GeminiTranslateService
      */
-    protected $geminiAiService;    
+    protected $geminiAiService;  
+
+     /**
+     * @var \PITS\AiTranslate\Service\ClaudeTranslateService
+     */
+    protected $claudeAiService;   
+
+    
 
     /**
      * @var \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository
@@ -85,6 +94,7 @@ class TranslateHook
         $this->googleService           = GeneralUtility::makeInstance(GoogleTranslateService::class);
         $this->openAiService           = GeneralUtility::makeInstance(OpenAiService::class);
         $this->geminiAiService           = GeneralUtility::makeInstance(GeminiTranslateService::class);
+        $this->claudeAiService           = GeneralUtility::makeInstance(ClaudeTranslateService::class);
         $this->deeplSettingsRepository = GeneralUtility::makeInstance(DeeplSettingsRepository::class);
     }
 
@@ -106,10 +116,12 @@ class TranslateHook
             }
             break;
         }
-        $customMode = $cmdmap['localization']['custom']['mode'];
+        $customMode = ($cmdmap['localization']['custom']['mode'])? $cmdmap['localization']['custom']['mode'] : $_SESSION['custommode'];
+        $srcLanguageId = ($cmdmap['localization']['custom']['srcLanguageId'])? $cmdmap['localization']['custom']['srcLanguageId'] : $_SESSION['customsrclanguage'];
+       
         //translation mode set to deepl or google translate
         if (!is_null($customMode)) {
-            $langParam          = explode('-', $cmdmap['localization']['custom']['srcLanguageId']);
+            $langParam          = explode('-',  $srcLanguageId);
             $sourceLanguageCode = $langParam[0];
             $targetLanguage     = BackendUtility::getRecord('sys_language', $this->getLanguageUidFromTitle($languageRecord['title']));
             $sourceLanguage     = BackendUtility::getRecord('sys_language', (int) $sourceLanguageCode);
@@ -220,6 +232,25 @@ class TranslateHook
    
                 }
             } 
+            elseif ($customMode == 'claudeai') {
+                if (in_array(strtoupper($targetLanguage['language_isocode']), $this->deeplService->apiSupportedLanguages)) 
+                {
+                    if ($tablename == 'tt_content') {
+                        $response = $this->claudeAiService->translateRequest($content, $targetLanguage['language_isocode'], $deeplSourceIso);
+                    }
+                    else {
+                        $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
+                        $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
+
+                        if (!empty($selectedTCAvalues)) {
+                            $response = $this->claudeAiService->translateRequest($selectedTCAvalues, $targetLanguage['language_isocode'], $sourceLanguage['language_isocode']);
+                        }
+                    }   
+                    $content = $response;
+   
+                }
+            } 
+
 
              
             //
@@ -256,7 +287,28 @@ class TranslateHook
         
         //inline js for adding deepl button on records list.
         if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
-          $hook['jsInline']['RecordListInlineJS']['code'] = "function deeplTranslate(a,b){ $('#deepl-translation-enable-' + b).parent().parent().siblings().each(function() { var testing = $( this ).attr( 'href' ); if(document.getElementById('deepl-translation-enable-' + b).checked == true){ var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } else { var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } }); }";
+            $hook['jsInline']['RecordListInlineJS']['code'] = "function languageTranslate(a, b, c) {
+                var parentDiv = $('.ai-button').closest('.btn-group');
+                // Find all occurrences of ai-button except 
+                var aiButtons = parentDiv.find('.ai-button').not('#' + c + '-translation-enable-' + b);
+  
+                aiButtons.each(function() {
+                    $(this).prop('checked', false);
+                });
+            
+                $('#' + c + '-translation-enable-' + b).parent().parent().siblings().each(function() {
+                    if ($(this).data('state') === undefined || $(this).data('state') === null) {
+                        var url = $(this).attr('href');
+                        var lastIndex = url.lastIndexOf('&cmd[localization]');
+                        var testing = (lastIndex > 0) ? url.substring(0, lastIndex) : url;
+                        if (document.getElementById(c + '-translation-enable-' + b).checked == true) {
+                            var newUrl = $(this).attr('href', testing + '&cmd[localization][custom][mode]=' + c);
+                        }
+                    }
+            
+                });
+            
+            }";
         }
     }
 
@@ -292,11 +344,12 @@ class TranslateHook
      */
     public function getTemplateValues($recorddata, $table, $field, $content)
     {
+
         $rootLineUtility = GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\RootlineUtility',$recorddata['pid']);
         $rootLine = $rootLineUtility->get();
-        $TSObj           = $GLOBALS['TSFE']->tmpl;
+        $TSObj = GeneralUtility::makeInstance(TemplateService::class);
+
         $TSObj->tt_track = 0;
-        $TSObj->init();
         $TSObj->runThroughTemplates($rootLine);
         $TSObj->generateConfig();
         if ($table != '') {

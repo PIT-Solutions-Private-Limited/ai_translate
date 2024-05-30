@@ -31,6 +31,9 @@ use PITS\AiTranslate\Service\DeeplService;
 use PITS\AiTranslate\Service\GoogleTranslateService;
 use PITS\AiTranslate\Service\OpenAiService;
 use PITS\AiTranslate\Service\GeminiTranslateService;
+use PITS\AiTranslate\Service\ClaudeTranslateService;
+
+
 
 /**
  * LocalizationController handles the AJAX requests for record localization
@@ -74,6 +77,13 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
 
      const ACTION_LOCALIZEGEMINIAI = 'localizegeminiai';     
 
+     /**
+     * @var string
+     */
+
+     const ACTION_LOCALIZECLAUDEAI = 'localizeclaudeai';       
+
+
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
@@ -100,6 +110,11 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     protected $geminiAiService;    
 
+     /**
+     * @var \PITS\AiTranslate\Service\ClaudeTranslateService
+     */
+    protected $claudeAiService;        
+
     /**
      * @var \TYPO3\CMS\Core\Page\PageRenderer
      */
@@ -115,6 +130,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         $this->googleService           = GeneralUtility::makeInstance(GoogleTranslateService::class);
         $this->openAiService           = GeneralUtility::makeInstance(OpenAiService::class);
         $this->geminiAiService           = GeneralUtility::makeInstance(GeminiTranslateService::class);
+        $this->claudeAiService           = GeneralUtility::makeInstance(ClaudeTranslateService::class);
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:ai_translate/Resources/Private/Language/locallang.xlf');
     }
@@ -214,7 +230,11 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
             if (!$row || VersionState::cast($row['t3ver_state'])->equals(VersionState::DELETE_PLACEHOLDER)) {
                 continue;
             }
-            $colPos = $row['colPos'];
+            if($row['tx_container_parent']==0) {
+                $colPos = $row['colPos'];
+
+            }
+
             if (!isset($records[$colPos])) {
                 $records[$colPos] = [];
             }
@@ -244,7 +264,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         }
 
         //additional constraint ACTION_LOCALIZEDEEPL
-        if ($params['action'] !== static::ACTION_COPY && $params['action'] !== static::ACTION_LOCALIZE && $params['action'] !== static::ACTION_LOCALIZEDEEPL && $params['action'] !== static::ACTION_LOCALIZEDEEPL_AUTO && $params['action'] !== static::ACTION_LOCALIZEGOOGLE && $params['action'] !== static::ACTION_LOCALIZEGOOGLE_AUTO && $params['action'] !== static::ACTION_LOCALIZEOPENAI && $params['action'] !== static::ACTION_LOCALIZEGEMINIAI) {
+        if ($params['action'] !== static::ACTION_COPY && $params['action'] !== static::ACTION_LOCALIZE && $params['action'] !== static::ACTION_LOCALIZEDEEPL && $params['action'] !== static::ACTION_LOCALIZEDEEPL_AUTO && $params['action'] !== static::ACTION_LOCALIZEGOOGLE && $params['action'] !== static::ACTION_LOCALIZEGOOGLE_AUTO && $params['action'] !== static::ACTION_LOCALIZEOPENAI && $params['action'] !== static::ACTION_LOCALIZEGEMINIAI && $params['action'] !== static::ACTION_LOCALIZECLAUDEAI) {
 
             $response = new Response('php://temp', 400, ['Content-Type' => 'application/json; charset=utf-8']);
             $response->getBody()->write('Invalid action "' . $params['action'] . '" called.');
@@ -279,7 +299,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
 
         if (isset($params['uidList']) && is_array($params['uidList'])) {
             foreach ($params['uidList'] as $currentUid) {
-                if ($params['action'] === static::ACTION_LOCALIZE || $params['action'] === static::ACTION_LOCALIZEDEEPL || $params['action'] === static::ACTION_LOCALIZEDEEPL_AUTO || $params['action'] === static::ACTION_LOCALIZEGOOGLE || $params['action'] === static::ACTION_LOCALIZEGOOGLE_AUTO || $params['action'] === static::ACTION_LOCALIZEOPENAI || $params['action'] === static::ACTION_LOCALIZEGEMINIAI) {
+                if ($params['action'] === static::ACTION_LOCALIZE || $params['action'] === static::ACTION_LOCALIZEDEEPL || $params['action'] === static::ACTION_LOCALIZEDEEPL_AUTO || $params['action'] === static::ACTION_LOCALIZEGOOGLE || $params['action'] === static::ACTION_LOCALIZEGOOGLE_AUTO || $params['action'] === static::ACTION_LOCALIZEOPENAI || $params['action'] === static::ACTION_LOCALIZEGEMINIAI || $params['action'] === static::ACTION_LOCALIZECLAUDEAI) {
                     $cmd['tt_content'][$currentUid] = [
                         'localize' => $destLanguageId,
                     ];
@@ -298,7 +318,12 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
                     else if ($params['action'] === static::ACTION_LOCALIZEGEMINIAI) {
                         $cmd['localization']['custom']['mode']          = 'geminiai';
                         $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
-                    }                    
+                    } 
+                    else if ($params['action'] === static::ACTION_LOCALIZECLAUDEAI) {
+                        $cmd['localization']['custom']['mode']          = 'claudeai';
+                        $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
+                    }                     
+                    
                 } else {
                     $cmd['tt_content'][$currentUid] = [
                         'copyToLanguage' => $destLanguageId,
@@ -307,6 +332,14 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
             }
         }
 
+        // Start session (if not already started)
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Set session variable
+        $_SESSION['custommode'] = $cmd['localization']['custom']['mode'];
+        $_SESSION['customsrclanguage'] = $cmd['localization']['custom']['srcLanguageId'];
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
         $dataHandler->start([], $cmd);
         $dataHandler->process_cmdmap();
@@ -399,16 +432,42 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         exit;
     }	
 
-    public function checkSettingsEnabled(ServerRequestInterface $request)
+    /**
+     * check claude Settings (model,apikey).
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return array
+     */
+    public function checkclaudeSettings(ServerRequestInterface $request)
+    {
+        $extConf            = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        if ($extConf['openclaudeapiKey'] != null && $extConf['openclaudeapiModel'] != null) {
+            $this->claudeAiService->validateCredentials();
+            $result['status']  = 'true';
+        } else {
+            $result['status']  = 'false';
+            $result['message'] = '';
+        }
+        $result = json_encode($result);
+        echo $result;
+        exit;
+    }	    
+
+    public function checkSettingsEnabled(ServerRequestInterface $request=null,$type='')
     {
         $extConf            = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
 		$result['enableDeepl'] = $extConf['enableDeepl'];
 		$result['enableGoogleTranslator'] = $extConf['enableGoogleTranslator'];
 		$result['enableOpenAi'] = $extConf['enableOpenAi'];
 		$result['enableGemini'] = $extConf['enableGemini'];
+        $result['enableClaude'] = $extConf['enableClaude'];
         $result = json_encode($result);
-        echo $result;
-        exit;
+        if($type == 'record') { 
+            return $result;
+        } else {
+            echo $result;
+            exit;
+        }
     }	
 	
 	
@@ -427,4 +486,5 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
             return (int) $langParam[0];
         }
     }
+    
 }

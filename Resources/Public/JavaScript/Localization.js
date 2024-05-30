@@ -129,7 +129,19 @@ define([
             value: 'localizegeminiai',
             style: 'display: none'
         })
-      )
+      ),
+      claudeaitranslate: $('<label />', {
+        class: 'btn btn-block btn-default t3js-option',
+        'data-helptext': '.t3js-helptext-translate'
+    }).html('<br>Translate with <br>Claude').prepend(
+        $('<input />', {
+            type: 'radio',
+            name: 'mode',
+            id: 'mode_openclaudetranslate',
+            value: 'localizeclaudeai',
+            style: 'display: none'
+        })
+      )	  
           
       },
       settings: {},
@@ -139,6 +151,15 @@ define([
 		  googleSettingsFailure:'Please complete missing google translator configurations.',
 		  openaiSettingsFailure:'Please complete missing openai configurations.',
 		  geminiSettingsFailure:'Please complete missing gemini configurations.',
+		  claudeSettingsFailure:'Please complete missing claude configurations.',
+		  deeplTranslate :'Translating content via Deepl translate will create a translation  from source language to the language you translate to.The translated content will be from deepl translation service which is 99 percentage accurate.Deepl service supports translation to and from English, French, German, Spanish, Italian, Dutch, and Polish languages.Other languages will be ignored and will default to the normal translate operation of TYPO3.',
+		  deeplTranslateAuto:'Translating content via Deepl translate (autodetect) will create a translation  from auto detected source language to the language you translate to.The translated content will be from deepl translation service which is 99 percentage accurate.Deepl service supports translation to and from English, French, German, Spanish, Italian, Dutch, and Polish languages.Other languages will be ignored and will default to the normal translate operation of TYPO3.',
+		  googleTranslate:'Translating content via Google Translate will create a translation  from source language to the language you translate to.The translated content will be from Google translation service.Google service supports a fair share of <a href="https://cloud.google.com/translate/docs/languages" target="_blank">languages</a>',
+		  googleTranslateAuto:'Translating content via Google Translate (autodetect) will create a translation  from auto detected source language to the language you translate to.The translated content will be from Google translation service.Google service supports a fair share of <a href="https://cloud.google.com/translate/docs/languages" target="_blank">languages</a>',
+		  openAi:'Translation functionality establishes a direct linkage between the original language and the translated version as your website"s configurations. Relocating an element or configuring meta information, like start- or endtime, will be derived from the original content. Please note that the translation is limited to AI"s Capabilities.',
+		  geminiAi:'Google Gemini AI can translate between languages with a high degree of accuracy. This makes it ideal for tasks such as real-time translation, document translation, and website translation. Please note that the translation is limited to AI"s Capabilities.',
+		  claudeAi:'The process is straightforward – simply provide the text you need translated, and Claude will quickly generate the translation in your desired target language. Please note that the translation is limited to AI"s Capabilities.'
+
       }
     };
   
@@ -150,7 +171,8 @@ define([
                         Icons.getIcon('actions-localize-google', Icons.sizes.large).done(function(localizeGoogleIconMarkup) {
                             Icons.getIcon('actions-localize-google', Icons.sizes.large).done(function(localizeGoogleIconMarkup) {
                             Icons.getIcon('actions-localize-openai', Icons.sizes.large).done(function(localizeOpenAiIconMarkup) {  
-                            Icons.getIcon('actions-localize-geminiai', Icons.sizes.large).done(function(localizeGeminiAiIconMarkup) {                
+                            Icons.getIcon('actions-localize-geminiai', Icons.sizes.large).done(function(localizeGeminiAiIconMarkup) {  
+							Icons.getIcon('actions-localize-claudeai', Icons.sizes.large).done(function(localizeClaudeAiIconMarkup) {	              
                             Localization.actions.translate.prepend(localizeIconMarkup);
                             Localization.actions.copy.prepend(copyIconMarkup);
                             Localization.actions.deepltranslate.prepend(localizeDeeplIconMarkup);
@@ -159,8 +181,10 @@ define([
                             Localization.actions.googletranslateAuto.prepend(localizeGoogleIconMarkup);
                             Localization.actions.openaitranslate.prepend(localizeOpenAiIconMarkup);
                             Localization.actions.geminiaitranslate.prepend(localizeGeminiAiIconMarkup);
+							Localization.actions.claudeaitranslate.prepend(localizeClaudeAiIconMarkup);
                             $(Localization.identifier.triggerButton).removeClass('disabled');
-                        });
+							});
+	                        });
                          });
                     });
               });
@@ -174,6 +198,13 @@ define([
           actions = [],
           slideStep1 = '';
 		  $.ajax({url: TYPO3.settings.ajaxUrls['records_settingsenabled'], success: function(result){
+		  var deeplTranslate = (TYPO3.lang['localize.educate.deepltranslate']) ?  TYPO3.lang['localize.educate.deepltranslate'] : Localization.labels.deeplTranslate;
+		  var deeplTranslateAuto = (TYPO3.lang['localize.educate.deepltranslateAuto']) ?  TYPO3.lang['localize.educate.deepltranslateAuto'] : Localization.labels.deeplTranslateAuto;	
+		  var googleTranslate = (TYPO3.lang['localize.educate.deepltranslate']) ?  TYPO3.lang['localize.educate.googleTranslate'] : Localization.labels.googleTranslate;
+		  var googleTranslateAuto = (TYPO3.lang['localize.educate.deepltranslate']) ?  TYPO3.lang['localize.educate.googleTranslateAuto'] : Localization.labels.googleTranslateAuto;	
+		  var openAi = (TYPO3.lang['localize.educate.deepltranslate']) ?  TYPO3.lang['localize.educate.openai'] : Localization.labels.openAi;	
+		  var geminiAi = (TYPO3.lang['localize.educate.deepltranslate']) ?  TYPO3.lang['localize.educate.geminiai'] : Localization.labels.geminiAi;	
+		  var claudeAi = (TYPO3.lang['localize.educate.claudeai']) ?  TYPO3.lang['localize.educate.claudeai'] : Localization.labels.claudeAi;		  
 		  var aiSetting = JSON.parse(result);
 		  if ($triggerButton.data('allowTranslate')) {
 			  actions.push(
@@ -190,7 +221,7 @@ define([
 					  '<div class="row" id="deeplTranslateAuto">'
 						  + '<div class="btn-group col-sm-3">' + Localization.actions.deepltranslateAuto[0].outerHTML + '</div>'
 						  + '<div class="col-sm-9" id="deeplTextAuto">'
-							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + TYPO3.lang['localize.educate.deepltranslateAuto']+ '</p>'
+							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + deeplTranslateAuto+ '</p>'
 						  + '</div>'
 					  + '</div>'
 				  );
@@ -198,7 +229,7 @@ define([
 					  '<div class="row" id="deeplTranslate">'
 						  + '<div class="btn-group col-sm-3">' + Localization.actions.deepltranslate[0].outerHTML + '</div>'
 						  + '<div class="col-sm-9" id="deeplText">'
-							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + TYPO3.lang['localize.educate.deepltranslate'] + '</p>'
+							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + deeplTranslate + '</p>'
 						  + '</div>'
 					  + '</div>'
 				  );				  
@@ -210,7 +241,7 @@ define([
 					  '<div class="row" id="googleTranslate">'
 						  + '<div class="btn-group col-sm-3">' + Localization.actions.googletranslate[0].outerHTML + '</div>'
 						  + '<div class="col-sm-9" id="googleText">'
-							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + TYPO3.lang['localize.educate.googleTranslate'] + '</p>'
+							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + googleTranslate + '</p>'
 						  + '</div>'
 					  + '</div>'
 				  );
@@ -218,7 +249,7 @@ define([
 					  '<div class="row" id="googleTranslateAuto">'
 						  + '<div class="btn-group col-sm-3">' + Localization.actions.googletranslateAuto[0].outerHTML + '</div>'
 						  + '<div class="col-sm-9" id="googleTextAuto">'
-							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + TYPO3.lang['localize.educate.googleTranslateAuto'] + '</p>'
+							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + googleTranslateAuto + '</p>'
 						  + '</div>'
 					  + '</div>'
 				  );				  
@@ -229,7 +260,7 @@ define([
 					  '<div class="row" id="openaiTranslate">'
 						  + '<div class="btn-group col-sm-3">' + Localization.actions.openaitranslate[0].outerHTML + '</div>'
 						  + '<div class="col-sm-9" id="openaiText">'
-							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + TYPO3.lang['localize.educate.openai'] + '</p>'
+							  + '<p class="t3js-helptext t3js-helptext-translate text-muted">' + openAi + '</p>'
 						  + '</div>'
 					  + '</div>'
 				  ); 				  
@@ -240,11 +271,22 @@ define([
 					'<div class="row" id="geminiaiTranslate">'
 						+ '<div class="btn-group col-sm-3">' + Localization.actions.geminiaitranslate[0].outerHTML + '</div>'
 						+ '<div class="col-sm-9" id="geminiaiText">'
-							+ '<p class="t3js-helptext t3js-helptext-translate text-muted">' + TYPO3.lang['localize.educate.geminiai'] + '</p>'
+							+ '<p class="t3js-helptext t3js-helptext-translate text-muted">' + geminiAi + '</p>'
 						+ '</div>'
 					+ '</div>'
 					);				  
-				  }           
+				  }     
+			  if(aiSetting.enableClaude==1) 
+				  {  
+				  actions.push(
+					'<div class="row" id="claudeaiTranslate">'
+						+ '<div class="btn-group col-sm-3">' + Localization.actions.claudeaitranslate[0].outerHTML + '</div>'
+						+ '<div class="col-sm-9" id="claudeaiText">'
+							+ '<p class="t3js-helptext t3js-helptext-translate text-muted">' + claudeAi + '</p>'
+						+ '</div>'
+					+ '</div>'
+					);	
+				  }					      
 		  }
 	  
 		  if ($triggerButton.data('allowCopy')) {
@@ -438,8 +480,14 @@ define([
 					  $container.find('.t3js-helptext').addClass('text-muted');
 					  $container.find($me.data('helptext')).removeClass('text-muted');
 				  }
-				  $container.find('.t3js-option').removeClass('active');
-				  $(this).addClass('active');
+
+				  if (typeof $container === "undefined") {
+					$radio.closest('.row').find('.t3js-option').removeClass('active')
+					$(this).addClass('active');
+				  }  else {
+					$container.find('.t3js-option').removeClass('active');
+					$(this).addClass('active');
+				  }
 
 				  if ($radio.length > 0) {
 					  if($radio.val()=='localizedeepl' || $radio.val()=='localizedeeplauto'){
@@ -546,7 +594,30 @@ define([
 									 Wizard.lockNextStep();
 								  }
 						   });
-					  }						  
+					  }	
+					  if($radio.val()=='localizeclaudeai'){
+						//check claudeai settings
+						Localization.claudeSettings(
+							   $triggerButton.data('pageId'),
+							   $triggerButton.data('languageId'),
+							   Localization.records
+						   ).done(function(result) {
+							   var responseClaudeai = JSON.parse(result);
+							   if(responseClaudeai.status=="false"){
+								 var divClaude  = $('#claudeaiText', window.parent.document);
+								 if(divClaude.find('.alert-danger').length == 0) 
+									 { 
+									 var errorMsg = (responseClaudeai.message!='') ? responseClaudeai.message : Localization.labels.claudeSettingsFailure; 	 	
+									 divClaude.prepend("<div class='alert alert-danger' id='alertClose'>  <a href='#'' class='close'  data-dismiss='alert' aria-label='close'>&times;</a>"+ errorMsg +"</div>");
+									 var claudeaiText = $('#alertClose', window.parent.document);
+									 $(claudeaiText).fadeTo(1600, 500).slideUp(500, function(){
+										   $(claudeaiText).alert('close');
+									   });									
+									 }								
+								  Wizard.lockNextStep();
+							   }
+						});
+				   }						  					  
 					  Localization.settings[$radio.attr('name')] = $radio.val();
 				  }
 				  Wizard.unlockNextStep();
@@ -635,6 +706,26 @@ define([
             }
         });
     };		
+
+    /**
+     * claudeSettings
+     * @param {Integer} pageId
+     * @param {Integer} languageId
+     * @param {Array} uidList
+     * @return {Promise}
+     */
+    Localization.claudeSettings = function(pageId, languageId, uidList) {
+        return $.ajax({
+            url: TYPO3.settings.ajaxUrls['records_localizeclaude'],
+            data: {
+                pageId: pageId,
+                srcLanguageId: Localization.settings.language,
+                destLanguageId: languageId,
+                action: Localization.settings.mode,
+                uidList: uidList
+            }
+        });
+    };	
   
     /**
      * Load available languages from page and colPos

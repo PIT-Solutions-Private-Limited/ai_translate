@@ -14,6 +14,7 @@ $deeplIconIdentifier = 'actions-localize-deepl';
 $googleIconIdentifier = 'actions-localize-google';
 $openaiIconIdentifier = 'actions-localize-openai';
 $geminiaiIconIdentifier = 'actions-localize-geminiai';
+$claudeaiIconIdentifier = 'actions-localize-claudeai';
 
 $iconRegistry->registerIcon(
     $deeplIconIdentifier,
@@ -38,7 +39,11 @@ $iconRegistry->registerIcon(
     \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
     ['source' => 'EXT:ai_translate/Resources/Public/Icons/' . $geminiaiIconIdentifier . '.svg']
 );
-
+$iconRegistry->registerIcon(
+    $claudeaiIconIdentifier,
+    \TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider::class,
+    ['source' => 'EXT:ai_translate/Resources/Public/Icons/' . $claudeaiIconIdentifier . '.svg']
+);
 //register backend module
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerModule(
     'PITS.ai_translate',
