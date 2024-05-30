@@ -14,14 +14,20 @@ googleapiUrl = https://translation.googleapis.com/language/translate/v2
 enableOpenAi = 1
 # cat=OpenAI Settings//11; type=string; label=API Key
 openaiapiKey =
-# cat=OpenAI Settings//12; type=options[gpt-4]; label=Model
+# cat=OpenAI Settings//12; type=options[gpt-4,gpt-4o,gpt-4-turbo]; label=Model
 openaiapiModel = 
 # cat=Gemini settings//13; type=boolean; label= Enable This Feature
 enableGemini = 1
 # cat=Gemini settings//14; type=string; label=API Key
 opengoogleapiKey =
 # cat=Gemini settings//15; type=options[gemini-1.0-pro]; label=Model
-opengoogleapiModel = 
+opengoogleapiModel =
+# cat=Claude settings//16; type=boolean; label= Enable This Feature
+enableClaude = 1
+# cat=Claude settings//17; type=string; label=API Key
+openclaudeapiKey =
+# cat=Claude settings//18; type=options[claude-3-opus-20240229,claude-3-sonnet-20240229,claude-3-haiku-20240307]; label=Model
+openclaudeapiModel =
 
 
 

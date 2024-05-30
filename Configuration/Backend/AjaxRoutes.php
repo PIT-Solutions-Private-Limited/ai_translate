@@ -29,11 +29,29 @@ return [
     'records_localizegemini' => [
         'path' => '/records/localizegemini',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkgeminiSettings'
-    ],		
+    ],
+    
+    // Check claude settings
+    'records_localizeclaude' => [
+        'path' => '/records/localizeclaude',
+        'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkclaudeSettings'
+    ],
 
     // check translation options are enabled or diabled
     'records_settingsenabled' => [
         'path' => '/records/settingsenabled',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkSettingsEnabled'
-    ]	
+    ],
+
+      //records localize
+      'records_localize' => [
+        'path' => '/records/localize',
+        'target' => PITS\AiTranslate\Override\LocalizationController::class . '::localizeRecords'
+      ],
+      
+      // Get summary of records to localize
+    'records_localize_summary' => [
+        'path' => '/records/localize/summary',
+        'target' => PITS\AiTranslate\Override\LocalizationController::class . '::getRecordLocalizeSummary',
+    ],		
 ];

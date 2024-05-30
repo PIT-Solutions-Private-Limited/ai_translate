@@ -18,6 +18,7 @@ use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Imaging\Icon;
 use TYPO3\CMS\Core\Imaging\IconFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use PITS\AiTranslate\Override\LocalizationController;
 
 /**
  * Class for rendering of Web>List module
@@ -73,8 +74,38 @@ class DatabaseRecordList extends \TYPO3\CMS\Backend\RecordList\DatabaseRecordLis
                     . '" class="btn btn-default t3js-action-localize"'
                     . ' title="' . $title . '">'
                     . $lC . '</a> ';
+
             }
         }
+
+        $localizationAi = '';
+        if($table!='sys_category') {
+         
+        $defaultLanguage = $languageInformation[0]['uid'] ?? 0;    
+        // Instantiate LocalizationController
+        $localizationController = GeneralUtility::makeInstance(LocalizationController::class);
+        $enabled = $localizationController->checkSettingsEnabled(null);
+        $enabled = json_decode($enabled->getBody());    
+        if($enabled->enableDeepl == '1') {
+        $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a ai-translate-button" title="Deepl"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="deepl-button ai-button" id="deepl-translation-enable-'.$row["uid"].'" type="checkbox" name="data[deepl.enable]" data-uid="'.$row["uid"].'" data-mode="deepl" data-defaultlanguage ="'.$defaultLanguage.'" /><span class="ai-span"></span></label></a>';
+        }
+        if($enabled->enableGoogleTranslator == '1') {
+        $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a ai-translate-button" title="Google"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="google-button ai-button" id="google-translation-enable-'.$row["uid"].'" type="checkbox" name="data[google.enable]" data-uid="'.$row["uid"].'" data-mode="google" data-defaultlanguage ="'.$defaultLanguage.'" /><span class="ai-span"></span></label></a>';
+        }
+        if($enabled->enableOpenAi == '1') {
+        $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a ai-translate-button" title="OpenAI"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="openai-button ai-button" id="openai-translation-enable-'.$row["uid"].'" type="checkbox" name="data[openai.enable]" data-uid="'.$row["uid"].'" data-mode="openai" data-defaultlanguage ="'.$defaultLanguage.'" /><span class="ai-span"></span></label></a>';
+        }
+        if($enabled->enableGemini == '1') {
+        $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a ai-translate-button" title="Gemini AI"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="geminiai-button ai-button" id="geminiai-translation-enable-'.$row["uid"].'" type="checkbox" name="data[geminiai.enable]" data-uid="'.$row["uid"].'" data-mode="geminiai" data-defaultlanguage ="'.$defaultLanguage.'" /><span class="ai-span"></span></label></a>';
+        }
+        if($enabled->enableClaude == '1') {
+        $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a ai-translate-button" title="Claude AI"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="claudeai-button ai-button" id="claudeai-translation-enable-'.$row["uid"].'" type="checkbox" name="data[claudeai.enable]" data-uid="'.$row["uid"].'" data-mode="claudeai" data-defaultlanguage ="'.$defaultLanguage.'" /><span class="ai-span"></span></label></a>';
+        }
+
+        }
+
+        $out .= $localizationAi;
+
         return $out;
     }
 }

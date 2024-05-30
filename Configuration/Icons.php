@@ -7,7 +7,7 @@ use TYPO3\CMS\Core\Imaging\IconProvider\SvgIconProvider;
 return [
     'deepl-main-menu-icon' => [
         'provider' => BitmapIconProvider::class,
-        'source' => 'EXT:ai_translate/Resources/Public/Icons/deepl.png',
+        'source' => 'EXT:ai_translate/Resources/Public/Icons/ai-dashboard.png',
     ],
 
     'deepl-settings-menu-icon' => [
@@ -29,5 +29,9 @@ return [
     'actions-localize-geminiai' => [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-localize-geminiai.svg',
+    ],
+    'actions-localize-claudeai' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-localize-claudeai.svg',
     ],
 ];

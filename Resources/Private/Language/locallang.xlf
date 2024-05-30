@@ -27,6 +27,10 @@
                 <source>Translating content via Google Translate (autodetect) will create a translation  from auto detected source language to the language you translate to.The translated content will be from Google translation service.Google service supports a fair share of <![CDATA[<a href="https://cloud.google.com/translate/docs/languages" target="_blank">languages</a>]]>.
                 </source>
             </trans-unit>
+            <trans-unit id="localize.educate.claudeai" xml:space="preserve">
+                <source>The process is straightforward – simply provide the text you need translated, and Claude will quickly generate the translation in your desired target language. Please note that the translation is limited to AI's Capabilities.
+                </source>
+            </trans-unit>  
             <trans-unit id="deepl_settings" xml:space="preserve">
                 <source>AI Translate Settings</source>
             </trans-unit>
@@ -69,6 +73,9 @@
             <trans-unit id="localize.wizard.button.geminiai" xml:space="preserve">
                 <source><![CDATA[Translate<br>(Gemini)]]></source>
             </trans-unit>
+            <trans-unit id="localize.wizard.button.claudeai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Claude)]]></source>
+            </trans-unit>
             <trans-unit id="localization.labels.deeplSettingsFailure" xml:space="preserve">
                 <source>Please complete missing deepl configurations.</source>
             </trans-unit>
@@ -80,6 +87,9 @@
             </trans-unit>
             <trans-unit id="localization.labels.geminiSettingsFailure" xml:space="preserve">
                 <source>Please complete missing Gemini configurations.</source>
+            </trans-unit>
+            <trans-unit id="localization.labels.claudeSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Claude configurations.</source>
             </trans-unit>
             
         </body>

@@ -34,12 +34,14 @@ use PITS\AiTranslate\Service\DeeplService;
 use PITS\AiTranslate\Service\GoogleTranslateService;
 use PITS\AiTranslate\Service\OpenAiService;
 use PITS\AiTranslate\Service\GeminiTranslateService;
+use PITS\AiTranslate\Service\ClaudeTranslateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
+use TYPO3\CMS\Core\TypoScript\TemplateService;
 
 class TranslateHook
 {
@@ -62,8 +64,12 @@ class TranslateHook
     /**
      * @var \PITS\AiTranslate\Service\GeminiTranslateService
      */
-    protected $geminiAiService;    
-
+    protected $geminiAiService;
+    
+    /**
+     * @var \PITS\AiTranslate\Service\ClaudeTranslateService
+     */
+    protected $claudeAiService;
 
     /**
      * @var \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository
@@ -99,6 +105,7 @@ class TranslateHook
         $this->googleService           = GeneralUtility::makeInstance(GoogleTranslateService::class);
         $this->openAiService           = GeneralUtility::makeInstance(OpenAiService::class);
         $this->geminiAiService           = GeneralUtility::makeInstance(GeminiTranslateService::class);
+        $this->claudeAiService           = GeneralUtility::makeInstance(ClaudeTranslateService::class);
         $this->deeplSettingsRepository = GeneralUtility::makeInstance(DeeplSettingsRepository::class);
         $this->siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
     }
@@ -110,7 +117,7 @@ class TranslateHook
      * @param type $dataHandler
      * @return string
      */
-    public function processTranslateTo_copyAction(&$content, $languageRecord, $dataHandler)
+    public function processTranslateTo_copyAction(&$content, $languageRecord, $dataHandler, $field)
     {
         $cmdmap = $dataHandler->cmdmap;
         foreach ($cmdmap as $key => $array) {
@@ -121,13 +128,18 @@ class TranslateHook
             }
             break;
         }
-        $customMode = $cmdmap['localization']['custom']['mode'] ?? null;
+        $modeFromSession = ($_SESSION['custommode']) ?? null;
+        $srcFromSession = ($_SESSION['customsrclanguage']) ?? null;
+        $customMode = isset($cmdmap['localization']['custom']['mode'])? $cmdmap['localization']['custom']['mode'] : $modeFromSession;
+        $srcLanguageId = isset($cmdmap['localization']['custom']['srcLanguageId'])? $cmdmap['localization']['custom']['srcLanguageId'] : $srcFromSession;
+
+        $customMode = $customMode ?? null;
         if ($customMode === null) {
             return $content;
         }
         //translation mode set to deepl or google translate
         if (!is_null($customMode)) {
-            $langParam          = explode('-', $cmdmap['localization']['custom']['srcLanguageId']);
+            $langParam          = explode('-', $srcLanguageId);
             $sourceLanguageCode = $langParam[0];
             $sites = $this->siteFinder->getAllSites();
             foreach($sites as $site){
@@ -240,7 +252,24 @@ class TranslateHook
                     $content = $response;
    
                 }
-            } 
+            }
+            elseif ($customMode == 'claudeai') {
+                if (in_array(strtoupper($targetLanguage['twoLetterIsoCode']), $this->deeplService->apiSupportedLanguages)) 
+                {
+                    if ($tablename == 'tt_content') {
+                        $response = $this->claudeAiService->translateRequest($content, $targetLanguage['twoLetterIsoCode'], $deeplSourceIso);
+                    }
+                    else {
+                        $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
+                        $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
+                        if (!empty($selectedTCAvalues)) {
+                            $response = $this->claudeAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
+                        }
+                    }   
+                    $content = $response;
+   
+                }
+            }  
         }
     }
 
@@ -275,11 +304,9 @@ class TranslateHook
         //$pageRenderer->loadJavaScriptModule('@typo3/backend/localization.js'); 
 
         //inline js for adding deepl button on records list.
-        $translationButton = "function deeplTranslate(a,b){ $('#deepl-translation-enable-' + b).parent().parent().siblings().each(function() { var testing = $( this ).attr( 'href' ); if(document.getElementById('deepl-translation-enable-' + b).checked == true){ var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } else { var newUrl = $( this ).attr( 'href' , testing + '&cmd[localization][custom][mode]=deepl'); } }); }";
-        if (isset($hook['jsInline']['RecordListInlineJS']['code'])){
-            $hook['jsInline']['RecordListInlineJS']['code'] .= $translationButton;
-        }else{
-            $hook['jsInline']['RecordListInlineJS']['code'] = $translationButton;
+        if (ApplicationType::fromRequest($GLOBALS['TYPO3_REQUEST'])->isBackend()) {
+            $pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(PageRenderer::class);
+            $pageRenderer->loadJavaScriptModule('@pits/ai-translate/recordListTranslate.js'); 
         }
     }
 
@@ -317,13 +344,12 @@ class TranslateHook
     {
         $rootLineUtility = GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\RootlineUtility',$recorddata['pid']);
         $rootLine = $rootLineUtility->get();
-        $TSObj           = $GLOBALS['TSFE']->tmpl;
+        $TSObj = GeneralUtility::makeInstance(TemplateService::class);
         $TSObj->tt_track = 0;
-        $TSObj->init();
         $TSObj->runThroughTemplates($rootLine);
         $TSObj->generateConfig();
         if ($table != '') {
-            $fieldlist = $TSObj->setup['plugin.'][$table . '.']['translatableTCAvalues'];
+            $fieldlist = isset($TSObj->setup['plugin.'][$table . '.']) ? $TSObj->setup['plugin.'][$table . '.']['translatableTCAvalues']: null;
             if ($fieldlist != null && strpos($fieldlist, $field) !== false) {
                 $value = $this->deeplSettingsRepository->getRecordField($table, $field, $recorddata);
             } else {

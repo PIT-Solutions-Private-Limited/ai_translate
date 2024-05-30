@@ -33,6 +33,7 @@ class Localization {
             Icons.getIcon("actions-localize-google", Icons.sizes.large).then((g => {
             Icons.getIcon("actions-localize-openai", Icons.sizes.large).then((h => {
             Icons.getIcon("actions-localize-geminiai", Icons.sizes.large).then((j => {
+            Icons.getIcon("actions-localize-claudeai", Icons.sizes.large).then((cl => {
                 $(e.triggerButton).removeClass("disabled"), $(document).on("click", e.triggerButton, (e => {
                     /*Eanble or disable custom icons based on extension settings */
                     var deeplCodeBlock = '';
@@ -41,6 +42,7 @@ class Localization {
                     var googleAutoCodeBlock = '';
                     var openaiCodeBlock = '';
                     var geminiaiCodeBlock = '';
+                    var claudeaiCodeBlock = '';
                     this.aiSettingsEanbled().then((async aiSettingsResult => {
                         const aiSettings = await aiSettingsResult.resolve();
                         
@@ -58,6 +60,9 @@ class Localization {
                         if(aiSettings['enableGemini'] == 1) {
                             geminiaiCodeBlock = '<div class="row" id="geminiaiTranslate"><div class="col-sm-3"><label class="btn btn-default d-block t3js-localization-option" data-helptext=".t3js-helptext-geminiaitranslate">' + j + '<input type="radio" name="mode" id="mode_opengeminitranslate" value="localizegeminiai" style="display: none"><br><br>' + TYPO3.lang["localize.wizard.button.geminiai"]+ '</label><br></div><div class="col-sm-9" id="geminiaiText"><p class="t3js-helptext t3js-helptext-translate text-body-secondary">' + TYPO3.lang["localize.educate.geminiai"] + "</p></div></div>";
                         }
+                        if(aiSettings['enableClaude'] == 1) {
+                            claudeaiCodeBlock = '<div class="row" id="claudeaiTranslate"><div class="col-sm-3"><label class="btn btn-default d-block t3js-localization-option" data-helptext=".t3js-helptext-claudeaitranslate">' + cl + '<input type="radio" name="mode" id="mode_openclaudetranslate" value="localizeclaudeai" style="display: none"><br><br>' + TYPO3.lang["localize.wizard.button.claudeai"]+ '</label><br></div><div class="col-sm-9" id="claudeaiText"><p class="t3js-helptext t3js-helptext-translate text-body-secondary">' + TYPO3.lang["localize.educate.claudeai"] + "</p></div></div>";
+                        }
         
                     e.preventDefault();
                     const o = $(e.currentTarget),
@@ -71,6 +76,7 @@ class Localization {
                     + googleAutoCodeBlock
                     + openaiCodeBlock
                     + geminiaiCodeBlock
+                    + claudeaiCodeBlock
                     ), 
                     l.push("localize")), o.data("allowCopy") && (i.push('<div class="row"><div class="col-sm-3"><label class="btn btn-default d-block t3js-localization-option" data-helptext=".t3js-helptext-copy">' + t + '<input type="radio" name="mode" id="mode_copy" value="copyFromLanguage" style="display: none"><br>' + TYPO3.lang["localize.wizard.button.copy"] + '</label></div><div class="col-sm-9"><p class="t3js-helptext t3js-helptext-copy text-body-secondary">' + TYPO3.lang["localize.educate.copy"] + "</p></div></div>"), 
                     l.push("copyFromLanguage")), 0 === o.data("allowTranslate") && 0 === o.data("allowCopy") && i.push('<div class="row"><div class="col-sm-12"><div class="alert alert-warning"><div class="media"><div class="media-left"><span class="icon-emphasized"><typo3-backend-icon identifier="actions-exclamation" size="small"></typo3-backend-icon></span></div><div class="media-body"><p class="alert-message">' + TYPO3.lang["localize.educate.noTranslate"] + "</p></div></div></div></div></div>"), s += '<div data-bs-toggle="buttons">' + i.join("") + "</div>", Wizard.addSlide("localize-choose-action", TYPO3.lang["localize.wizard.header_page"].replace("{0}", o.data("page")).replace("{1}", o.data("languageName")), s, SeverityEnum.info, (() => {
@@ -272,12 +278,34 @@ class Localization {
                                              }
                                          }))
                                  }
+
+                                 if(t.val()=='localizeclaudeai'){
+                                    //check claudeai  settings
+                                    this.claudeSettings().then((async a => {
+                                             const responseClaudeai = await a.resolve();
+                                            
+                                             if(responseClaudeai['status'] === false){
+                                               
+                                                var divClaude  = $('#claudeaiText', window.parent.document);
+                                                if(divClaude.find('.alert-danger').length == 0){
+                                                    var errorMsg = (responseClaudeai['message']!='') ? responseClaudeai['message'] : TYPO3.lang["localization.labels.claudeSettingsFailure"]; 	
+                                                    divClaude.prepend("<div class='alert alert-danger' id='alertClose'>  <a href='#'' class='close'  data-dismiss='alert' aria-label='close'>&times;</a>"+errorMsg+"</div>");
+                                                    var claudeaiText = $('#alertClose', window.parent.document);
+                                                    $(claudeaiText).fadeTo(1600, 500).slideUp(500, function(){
+                                                        $(claudeaiText).alert('close');
+                                                    });
+                                                }
+                                                Wizard.lockNextStep();
+                                             }
+                                         }))
+                                 }
                             }
                             
                             this.localizationMode = t.val(), Wizard.unlockNextStep()
                         }))
                     }))
                 }))
+            }))
             }))
             }))
             }))
@@ -336,6 +364,14 @@ class Localization {
 
     geminiSettings(e, a) {
         return new AjaxRequest(TYPO3.settings.ajaxUrls.records_localizegemini).withQueryArguments({
+            pageId: e,           
+            destLanguageId: a,           
+        }).get()
+
+    }
+
+    claudeSettings(e, a) {
+        return new AjaxRequest(TYPO3.settings.ajaxUrls.records_localizeclaude).withQueryArguments({
             pageId: e,           
             destLanguageId: a,           
         }).get()
