@@ -58,6 +58,9 @@ $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['bodytext']['l10n_mode']
 $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['teaser']['l10n_mode'] = 'prefixLangTitle';
 
 ```
+![News](https://github.com/PIT-Solutions-Private-Limited/ai_translate/assets/164833667/be6c665c-a466-49a8-b8f0-86ee13be83a6)
+First select the AI ​​models you want and then select the language you want to translate.
+
 
 ## AI Translate Module Settings
 The settings module helps to assign the sytem languages to either deepl supported languages or Google,OpenAi,Gemini,Claude languages.
