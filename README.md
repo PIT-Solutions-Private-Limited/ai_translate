@@ -10,6 +10,12 @@ For openai,gemini and claude autodetects source language and translates it to th
 2. Once the extension is installed, it will be accessible in the left menu in the TYPO3 backend.
 3. Click on the "AI Translate" option in the left menu to access languages settings.
 
+## Composer support
+
+composer req pits/ai_translate
+composer exec typo3 extension:setup
+
+
 ## How to use:
 
 Watch our instruction video to get an overview of the extension and how to use it.
