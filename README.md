@@ -13,6 +13,7 @@ For openai,gemini and claude autodetects source language and translates it to th
 ## Composer support
 
 composer req pits/ai_translate
+
 composer exec typo3 extension:setup
 
 
