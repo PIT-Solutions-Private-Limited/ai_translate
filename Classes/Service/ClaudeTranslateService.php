@@ -38,7 +38,12 @@ class ClaudeTranslateService
 			// Translate each chunk separately
 			foreach ($chunks as $chunk) {
 				$result = $this->translateClaudeRequest($chunk, $targetLanguage, $sourceLanguage);
-				$results[] = $result;
+				if(!is_array($result)){
+					$results[] = $result;
+				}
+				else{
+					return $result;
+				}
 			}
         }
         // Merge the results and return
@@ -94,8 +99,11 @@ class ClaudeTranslateService
             if(isset($responseArray['content'][0]['text'])){
                 $generatedText = isset($responseArray['content'][0]['text']) ? $responseArray['content'][0]['text']: '';
             }
-			else if(isset($responseArray['error']['code']) && $responseArray['error']['code']==400) {
-				$generatedText = $responseArray['error']['code'];
+			else{
+				$result['status']  = false;
+				$result['message'] = ($responseArray['error']['message']) ?? 'Invalid api key or url';
+
+				return $result;
 			}
 
 			return $generatedText;
@@ -107,14 +115,14 @@ class ClaudeTranslateService
 
     public function validateCredentials() {
         $response = $this->translateRequest('Test','de', 'en',);
-		$result['status']  = true;
-		if($response == 400) {
-			$result            = [];
-            $result['status']  = false;
-			$result['message'] = 'Invalid api key or url';  
-		}
+		if(!is_array($response)){
+            $result['status']  = true;
+            return $result;
+        }
+        else{
+            return $response;
+        }
 
-		return $result;
     }     
     
 }

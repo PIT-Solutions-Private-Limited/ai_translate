@@ -164,9 +164,9 @@ class TranslateHook
                 $sourceLanguageIso = $sourceLanguage['twoLetterIsoCode'];
                 $deeplSourceIso    = $sourceLanguageIso;
             }
-            if ($this->isHtml($content)) {
+            /*if ($this->isHtml($content)) {
                 $content = $this->stripSpecificTags(['br'], $content);
-            }
+            }*/
             //mode deepl
             if ($customMode == 'deepl') {
                 //if target language and source language among supported languages
@@ -191,6 +191,13 @@ class TranslateHook
                             }
                         }
                     }
+                    else{
+                        if(is_array($response) && isset($response['status'])){
+                            if(!$response['status']){
+                                echo $response['message']; exit;
+                            }
+                        }
+                    }
                 }
             }
             //mode google
@@ -207,6 +214,11 @@ class TranslateHook
                     }
                 }
                 if (!empty($response)) {
+                    if(is_array($response) && isset($response['status'])){
+                        if(!$response['status']){
+                            echo $response['message']; exit;
+                        }
+                    }
                     if ($this->isHtml($response)) {
                         $content = preg_replace('/\/\s/', '/', $response);
                         $content = preg_replace('/\>\s+/', '>', $content);
@@ -229,7 +241,14 @@ class TranslateHook
                         if (!empty($selectedTCAvalues)) {
                             $response = $this->openAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
-                    }   
+                    }
+
+                    if(is_array($response) && isset($response['status'])){
+                        if(!$response['status']){
+                            echo $response['message']; exit;
+                        }
+                    } 
+
                     $content = $response;
    
                 }
@@ -248,7 +267,13 @@ class TranslateHook
                         if (!empty($selectedTCAvalues)) {
                             $response = $this->geminiAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
-                    }   
+                    }
+                    if(is_array($response) && isset($response['status'])){
+                        if(!$response['status']){
+                            echo $response['message']; exit;
+                        }
+                    } 
+
                     $content = $response;
    
                 }
@@ -265,7 +290,12 @@ class TranslateHook
                         if (!empty($selectedTCAvalues)) {
                             $response = $this->claudeAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
-                    }   
+                    }
+                    if(is_array($response) && isset($response['status'])){
+                        if(!$response['status']){
+                            echo $response['message']; exit;
+                        }
+                    }    
                     $content = $response;
    
                 }

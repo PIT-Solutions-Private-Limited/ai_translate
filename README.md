@@ -10,6 +10,13 @@ For openai,gemini and claude autodetects source language and translates it to th
 2. Once the extension is installed, it will be accessible in the left menu in the TYPO3 backend.
 3. Click on the "AI Translate" option in the left menu to access languages settings.
 
+## Composer support
+
+composer req pits/ai_translate
+
+composer exec typo3 extension:setup
+
+
 ## How to use:
 
 Watch our instruction video to get an overview of the extension and how to use it.
@@ -44,7 +51,7 @@ Claude AI anthropic has request per minute limitation for free account See detai
 
 ## Translating TCA records
 
-AiTranslate supports translation of specific fields of TCA records.It understands fields which need to be translated, only if their ``` l10n_mode ``` is set to ``` prefixLangTitle ```.
+AITranslate supports translation of specific fields of TCA records.It understands fields which need to be translated, only if their ``` l10n_mode ``` is set to ``` prefixLangTitle ```.
 
 For example if you need translation of fields of tx_news (teaser and bodytext),You need to override those fields like follows:
 
@@ -58,6 +65,9 @@ $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['bodytext']['l10n_mode']
 $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['teaser']['l10n_mode'] = 'prefixLangTitle';
 
 ```
+![News](https://github.com/PIT-Solutions-Private-Limited/ai_translate/assets/164833667/be6c665c-a466-49a8-b8f0-86ee13be83a6)
+First select the AI ​​models you want and then select the language you want to translate.
+
 
 ## AI Translate Module Settings
 The settings module helps to assign the sytem languages to either deepl supported languages or Google,OpenAi,Gemini,Claude languages.

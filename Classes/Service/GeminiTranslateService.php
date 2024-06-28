@@ -39,7 +39,13 @@ class GeminiTranslateService
 			// Translate each chunk separately
 			foreach ($chunks as $chunk) {
 				$result = $this->translateGeminiRequest($chunk, $targetLanguage, $sourceLanguage);
-				$results[] = $result;
+				if(!is_array($result)){
+					$results[] = $result;
+				}
+				else{
+					return $result;
+				}
+				
 			}
         }
         // Merge the results and return
@@ -107,12 +113,16 @@ class GeminiTranslateService
 
 			// Decode and assign the response
 			$responseArray = json_decode($response, true);
-            $generatedText = ''; 
+            $generatedText = '';
+			
             if(isset($responseArray['candidates'])){ 
                 $generatedText = isset($responseArray['candidates'][0]['content']) ? $responseArray['candidates'][0]['content']['parts'][0]['text']: '';
-            }
-			else if(isset($responseArray['error']['code']) && $responseArray['error']['code']==400) {
-				$generatedText = $responseArray['error']['code'];
+			}
+			else{
+				$result['status']  = false;
+				$result['message'] = ($responseArray['error']['message']) ?? 'Invalid api key or url';
+
+				return $result;
 			}
 
 			return $generatedText;
@@ -125,13 +135,12 @@ class GeminiTranslateService
 
 	public function validateCredentials() {
         $response = $this->translateRequest('Test','DE', 'EN',);
-		$result['status']  = true;
-		if($response==400) {
-			$result            = [];
-            $result['status']  = false;
-			$result['message'] = 'Invalid api key or url';
-		}
-		
-		return $result;
+		if(!is_array($response)){
+            $result['status']  = true;
+            return $result;
+        }
+        else{
+            return $response;
+        }
     }     
 }
