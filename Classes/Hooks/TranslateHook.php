@@ -164,9 +164,9 @@ class TranslateHook
                 $sourceLanguageIso = $sourceLanguage['twoLetterIsoCode'];
                 $deeplSourceIso    = $sourceLanguageIso;
             }
-            if ($this->isHtml($content)) {
+            /*if ($this->isHtml($content)) {
                 $content = $this->stripSpecificTags(['br'], $content);
-            }
+            }*/
             //mode deepl
             if ($customMode == 'deepl') {
                 //if target language and source language among supported languages
