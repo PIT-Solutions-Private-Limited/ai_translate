@@ -1,6 +1,6 @@
 {
   "name": "pits/ai_translate",
-  "description" : "This extension provides option to translate content element, and tca record texts to Deepl and Google supported languages using Deepl and Googletranslate Api services.",
+  "description" : "This extension provides option to translate content element, and tca record texts  using Deepl, Googletranslate,Gpt4 , Gemini and Claude Api services.",
   "license": "GPL-2.0+",
   "autoload": {
         "psr-4": {
@@ -13,7 +13,10 @@
         "pits",
         "translate",
         "deepl",
-        "googletranslate"
+        "googletranslate",
+		"gpt4",
+		"gemini",
+		"claude"
     ],
   "authors": [
         {
@@ -21,6 +24,10 @@
             "role": "Developer"
         }
    ],
+    "require": {
+        "php": "^8.1",
+        "typo3/cms-core": "^12.4"
+    },   
   "type": "typo3-cms-extension",
   "extra": {
     "typo3/cms": {
