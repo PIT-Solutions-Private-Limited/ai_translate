@@ -1,37 +1,53 @@
 {
-  "name": "pits/ai_translate",
-  "description" : "This extension provides option to translate content element, and tca record texts  using Deepl, Googletranslate,Gpt4 , Gemini and Claude Api services.",
-  "license": "GPL-2.0+",
-  "autoload": {
-        "psr-4": {
-            "PITS\\AiTranslate\\": "Classes/"
-        }
-    },
-  "keywords": [
-        "TYPO3",
-        "extension",
-        "pits",
-        "translate",
-        "deepl",
-        "googletranslate",
-		"gpt4",
-		"gemini",
-		"claude"
+    "name": "pits/ai_translate",
+    "type": "typo3-cms-extension",
+    "description": "This extension provides option to translate content element, and tca record texts using Deepl, Googletranslate, GPT-4, Gemini and Claude API services.",
+    "keywords": [
+        "TYPO3 CMS",
+        "AI Translate",
+        "Content translation",
+        "DeepL",
+        "Google Translate",
+        "GPT-4",
+        "Gemini",
+        "Claude"
     ],
-  "authors": [
+    "homepage": "https://extensions.typo3.org/extension/ai_translate/",
+    "support": {
+        "issues": "https://github.com/PIT-Solutions-Private-Limited/ai_translate/issues",
+        "source": "https://github.com/PIT-Solutions-Private-Limited/ai_translate"
+    },
+    "license": "GPL-2.0-or-later",
+    "authors": [
         {
             "name": "PITS",
             "role": "Developer"
         }
-   ],
+    ],
     "require": {
-        "php": ">=7.3",
-        "typo3/cms-core": "^11.0"
-    },   
-  "type": "typo3-cms-extension",
-  "extra": {
-    "typo3/cms": {
-      "extension-key": "ai_translate"
+        "php": ">=7.4",
+        "typo3/cms-core": "^11.5"
+    },
+    "require-dev": {
+        "typo3/cms-core": "^11.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "PITS\\AiTranslate\\": "Classes/"
+        }
+    },
+    "extra": {
+        "typo3/cms": {
+            "extension-key": "ai_translate"
+        }
+    },
+    "config": {
+        "vendor-dir": ".Build/vendor",
+        "bin-dir": ".Build/bin"
+    },
+    "scripts": {
+        "post-autoload-dump": [
+            "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+        ]
     }
-  }
 }
