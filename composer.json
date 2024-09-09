@@ -7,31 +7,31 @@
             "PITS\\AiTranslate\\": "Classes"
         }
     },
-    "keywords": [
-      "TYPO3",
-      "extension",
-      "pits",
-      "translate",
-      "deepl",
-      "googletranslate",
-      "gpt4",
-      "gemini",
-      "claude"
-  ],
+  "keywords": [
+        "TYPO3",
+        "extension",
+        "pits",
+        "translate",
+        "deepl",
+        "googletranslate",
+		"gpt4",
+		"gemini",
+		"claude"
+    ],
   "authors": [
         {
-            "name": "Pits",
+            "name": "PITS",
             "role": "Developer"
         }
    ],
-   "require": {
-    "php": ">=7.3",
-    "typo3/cms-core": "^11.0"
-  }, 
+    "require": {
+        "php": ">=7.3",
+        "typo3/cms-core": "^11.0"
+    },   
+  "type": "typo3-cms-extension",
   "extra": {
     "typo3/cms": {
       "extension-key": "ai_translate"
     }
-  },   
-  "type": "typo3-cms-extension"
+  }
 }
