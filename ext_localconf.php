@@ -22,7 +22,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['TYPO3\\CMS\\Recordlist\\RecordLis
 );
 
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][PageLayoutController::class] = [
-    'className' => PITS\AiTranslate\Xclass\PageLayoutControllerXClass::class
+    'className' => PITS\AiTranslate\XClass\PageLayoutControllerXClass::class
 ];
 
 
