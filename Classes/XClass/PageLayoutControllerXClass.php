@@ -36,7 +36,7 @@ use TYPO3\CMS\Fluid\View\StandaloneView;
 use TYPO3\CMS\Fluid\ViewHelpers\Be\InfoboxViewHelper;
 use TYPO3\CMS\Backend\Controller\PageLayoutController as OriginalPageLayoutController;
 
-class PageLayoutControllerXclass extends OriginalPageLayoutController
+class PageLayoutControllerXClass extends OriginalPageLayoutController
 {
   /**
      * Page Id for which to make the listing
