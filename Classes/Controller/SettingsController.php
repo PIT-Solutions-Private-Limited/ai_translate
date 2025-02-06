@@ -143,10 +143,10 @@ class SettingsController extends ActionController
             $this->pageRenderer->addJsInlineCode("success", "top.TYPO3.Notification.success('Saved', '" . $successMessage . "');");
         }
         $sites = $this->siteFinder->getAllSites();
+        $sysLanguages = [];
         foreach($sites as $site){
-            $siteLanguageArray[] = $site->getAllLanguages();
-        }
-        $sysLanguages = call_user_func_array('array_merge', $siteLanguageArray);        
+            $sysLanguages[$site->getIdentifier()] = $site->getAllLanguages();
+        }       
         $data         = [];
         $preSelect    = [];
         //get existing assignments if any
@@ -201,16 +201,19 @@ class SettingsController extends ActionController
     public function buildTableAssignments($sysLanguages, $preselectedValues)
     {
         $table        = [];
-        $selectedKeys = array_keys($preselectedValues);
-        foreach ($sysLanguages as $sysLanguage) {
-            $syslangIso = $sysLanguage->getLocale()->getLanguageCode();
-            $option     =  $sysLanguage->toArray();
-            $languageId = $sysLanguage->getLanguageId();
-            if (in_array($languageId, $selectedKeys) || 
-            in_array(strtoupper($syslangIso), $this->deeplService->apiSupportedLanguages)) {
-                $option['value'] = $preselectedValues[$languageId] ?? strtoupper($syslangIso);
+       foreach ($sysLanguages as $siteIdentifier => $sysLanguageArray) {
+            $selectedKeys = array_keys($preselectedValues[$siteIdentifier]);
+            foreach ($sysLanguageArray as $sysLanguage) {
+                $syslangIso = $sysLanguage->getLocale()->getLanguageCode();
+                $option = $sysLanguage->toArray();
+                $languageId = $sysLanguage->getLanguageId();
+                if (in_array($languageId, $selectedKeys)
+                    || in_array(strtoupper($syslangIso), $this->deeplService->apiSupportedLanguages)) {
+                    $option['value'] = $preselectedValues[$languageId] ??
+                        strtoupper($syslangIso);
+                }
+                $table[$siteIdentifier][] = $option;
             }
-            $table[] = $option;
         }
         
         return $table;
