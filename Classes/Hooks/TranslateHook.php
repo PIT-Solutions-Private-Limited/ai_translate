@@ -141,14 +141,14 @@ class TranslateHook
         if (!is_null($customMode)) {
             $langParam          = explode('-', $srcLanguageId);
             $sourceLanguageCode = $langParam[0];
-            $sites = $this->siteFinder->getAllSites();
-            foreach($sites as $site){
-                $targetLanguage = $site->getLanguageById($languageRecord['uid'])->toArray();
-                $sourceLanguage = $site->getLanguageById((int) $sourceLanguageCode)->toArray();
-            }
-            
+            $pid = $_REQUEST['pageId'];
+            $site = $this->siteFinder->getSiteByPageId($pid);
+            $siteIdentifier = $site->getIdentifier();
+            $targetLanguage = $site->getLanguageById($languageRecord['uid'])->toArray();
+            $sourceLanguage = $site->getLanguageById((int) $sourceLanguageCode)->toArray();
+                        
             //get target language mapping if any
-            $targetLanguageMapping = $this->deeplSettingsRepository->getMappings($targetLanguage['languageId']);
+            $targetLanguageMapping = $this->deeplSettingsRepository->getMappings($targetLanguage['languageId'], $siteIdentifier);
             if ($targetLanguageMapping != null) {
                 $targetLanguage['twoLetterIsoCode'] = $targetLanguageMapping;
             }
@@ -157,7 +157,7 @@ class TranslateHook
                 //choose between default and autodetect
                 $deeplSourceIso = ($sourceLanguageCode == 'auto' ? null : 'EN');
             } else {
-                $sourceLanguageMapping = $this->deeplSettingsRepository->getMappings($sourceLanguage['languageId']);
+                $sourceLanguageMapping = $this->deeplSettingsRepository->getMappings($sourceLanguage['languageId'], $siteIdentifier);
                 if ($sourceLanguageMapping != null) {
                     $sourceLanguage['twoLetterIsoCode'] = $sourceLanguageMapping;
                 }
