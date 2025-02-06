@@ -1,4 +1,5 @@
 <?php
+
 namespace PITS\AiTranslate\Controller;
 
 /***************************************************************
@@ -41,8 +42,9 @@ class SettingsController extends ActionController
 {
     /**
      * pageRenderer
+     *
      * @var \TYPO3\CMS\Core\Page\PageRenderer
-     * 
+     *
      */
     #[Inject()]
     protected $pageRenderer;
@@ -51,41 +53,43 @@ class SettingsController extends ActionController
      * @var \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository
      */
     #[Inject()]
-    protected $deeplSettingsRepository;    
+    protected $deeplSettingsRepository;
 
     /**
      * @var \PITS\AiTranslate\Service\DeeplService
-     * 
+     *
      */
     #[Inject()]
     protected $deeplService;
 
-     /**
+    /**
      * siteFinder
+     *
      * @var \TYPO3\CMS\Core\Page\SiteFinder
-     * 
+     *
      */
     #[Inject()]
     protected $siteFinder;
 
     /**
      * moduleTemplateFactory
+     *
      * @var \TYPO3\CMS\Backend\Template\ModuleTemplateFactory
-     * 
+     *
      */
     #[Inject()]
     protected $moduleTemplateFactory;
 
-     /**
+    /**
      * Inject the PageRenderer
      *
      * @param \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer
      */
 
-     public function injectPageRenderer(PageRenderer $pageRenderer)
-     {
-         $this->pageRenderer = $pageRenderer;
-     }
+    public function injectPageRenderer(PageRenderer $pageRenderer)
+    {
+        $this->pageRenderer = $pageRenderer;
+    }
 
     /**
      * Inject the DeeplSettingsRepostory
@@ -93,69 +97,82 @@ class SettingsController extends ActionController
      * @param \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository $deeplSettingsRepository
      */
 
-     public function injectDeeplSettingsRepository(DeeplSettingsRepository $deeplSettingsRepository)
-     {
-         $this->deeplSettingsRepository = $deeplSettingsRepository;
-     }
-     
+    public function injectDeeplSettingsRepository(
+        DeeplSettingsRepository $deeplSettingsRepository
+    ) {
+        $this->deeplSettingsRepository = $deeplSettingsRepository;
+    }
+
     /**
      * Inject the DeeplService
      *
      * @param \PITS\AiTranslate\Service\DeeplService $deeplService
      */
 
-     public function injectDeeplService(DeeplService $deeplService)
-     {
-         $this->deeplService = $deeplService;
-     }
+    public function injectDeeplService(DeeplService $deeplService)
+    {
+        $this->deeplService = $deeplService;
+    }
 
-     /**
+    /**
      * Inject the SiteFinder
      *
      * @param \TYPO3\CMS\Core\Page\SiteFinder $siteFinder
      */
 
-     public function injectSiteFinder(SiteFinder $siteFinder)
-     {
-         $this->siteFinder = $siteFinder;
-     }
+    public function injectSiteFinder(SiteFinder $siteFinder)
+    {
+        $this->siteFinder = $siteFinder;
+    }
 
-      /**
+    /**
      * Inject the ModuleTemplateFactory
      *
      * @param \TYPO3\CMS\Backend\Template\ModuleTemplateFactory $moduleTemplateFactory
      */
 
-     public function injectModuleTemplateFactory(ModuleTemplateFactory $moduleTemplateFactory)
-     {
-         $this->moduleTemplateFactory = $moduleTemplateFactory;
-     }
+    public function injectModuleTemplateFactory(
+        ModuleTemplateFactory $moduleTemplateFactory
+    ) {
+        $this->moduleTemplateFactory = $moduleTemplateFactory;
+    }
 
     /**
      * Default action
+     *
      * @return void
      */
     public function indexAction(): ResponseInterface
     {
         $args = $this->request->getArguments();
-        if (isset($args['redirectFrom']) && $args['redirectFrom'] == 'savesetting') {
-            $successMessage = \TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate('settings_success', 'Deepl');
-            $this->pageRenderer->addJsInlineCode("success", "top.TYPO3.Notification.success('Saved', '" . $successMessage . "');");
+        if (isset($args['redirectFrom'])
+            && $args['redirectFrom'] == 'savesetting') {
+            $successMessage
+                = \TYPO3\CMS\Extbase\Utility\LocalizationUtility::translate('settings_success', 'Deepl');
+            $this->pageRenderer->addJsInlineCode("success", "top.TYPO3.Notification.success('Saved', '"
+                . $successMessage . "');");
         }
         $sites = $this->siteFinder->getAllSites();
-        $sysLanguages = [];
-        foreach($sites as $site){
-            $sysLanguages[$site->getIdentifier()] = $site->getAllLanguages();
-        }       
-        $data         = [];
-        $preSelect    = [];
+        foreach ($sites as $site) {
+            $siteLanguageArray[$site->getIdentifier()]
+                = $site->getAllLanguages();
+        }
+//        $sysLanguages = call_user_func_array('array_merge', $siteLanguageArray);
+        $sysLanguages = $siteLanguageArray;
+        $data = [];
+        $preSelect = [];
         //get existing assignments if any
         $languageAssignments = $this->deeplSettingsRepository->getAssignments();
-        if (!empty($languageAssignments) && !empty($languageAssignments[0]['languages_assigned'])) {
-            $preSelect = array_filter(unserialize($languageAssignments[0]['languages_assigned']));
+        if (!empty($languageAssignments)
+            && !empty($languageAssignments[0]['languages_assigned'])) {
+            $preSelect
+                = array_filter(unserialize($languageAssignments[0]['languages_assigned']));
         }
         $selectBox = $this->buildTableAssignments($sysLanguages, $preSelect);
-        $this->view->assignMultiple(['sysLanguages' => $sysLanguages, 'selectBox' => $selectBox]);
+        $this->view->assignMultiple([
+            'sysLanguages' => $sysLanguages,
+            'selectBox'    => $selectBox
+        ]);
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         // Adding title, menus, buttons, etc. using $moduleTemplate ...
@@ -165,6 +182,7 @@ class SettingsController extends ActionController
 
     /**
      * save language assignments
+     *
      * @return void
      */
     public function saveSettingsAction(): ResponseInterface
@@ -181,41 +199,51 @@ class SettingsController extends ActionController
             $data['languages_assigned'] = serialize($languages);
         }
         if (empty($languageAssignments)) {
-            $data['crdate']      = time();
-            $languageAssignments = $this->deeplSettingsRepository->insertDeeplSettings($data);
+            $data['crdate'] = time();
+            $languageAssignments
+                = $this->deeplSettingsRepository->insertDeeplSettings($data);
         } else {
-            $data['uid']    = $languageAssignments[0]['uid'];
-            $updateSettings = $this->deeplSettingsRepository->updateDeeplSettings($data);
+            $data['uid'] = $languageAssignments[0]['uid'];
+            $updateSettings
+                = $this->deeplSettingsRepository->updateDeeplSettings($data);
         }
         $args['redirectFrom'] = 'savesetting';
-        
+
         return $this->redirect('index', 'Settings', 'Deepl', $args);
     }
 
     /**
      * return an array of options for multiple selectbox
+     *
      * @param array $sysLanguages
      * @param array $preselectedValues
+     *
      * @return array
      */
     public function buildTableAssignments($sysLanguages, $preselectedValues)
     {
-        $table        = [];
-       foreach ($sysLanguages as $siteIdentifier => $sysLanguageArray) {
-            $selectedKeys = array_keys($preselectedValues[$siteIdentifier]);
+        $table = [];
+        foreach ($sysLanguages as $siteIdentifier => $sysLanguageArray) {
+            if (array_key_exists($siteIdentifier, $preselectedValues)) {
+                $selectedKeys
+                    = array_keys($preselectedValues[$siteIdentifier]);
+            } else {
+                $selectedKeys = [];
+            }
             foreach ($sysLanguageArray as $sysLanguage) {
-                $syslangIso = $sysLanguage->getLocale()->getLanguageCode();
+                $syslangIso = $sysLanguage->getLocale()
+                    ->getLanguageCode();
                 $option = $sysLanguage->toArray();
                 $languageId = $sysLanguage->getLanguageId();
                 if (in_array($languageId, $selectedKeys)
                     || in_array(strtoupper($syslangIso), $this->deeplService->apiSupportedLanguages)) {
-                    $option['value'] = $preselectedValues[$languageId] ??
+                    $option['value'] = $preselectedValues[$languageId]
+                        ??
                         strtoupper($syslangIso);
                 }
                 $table[$siteIdentifier][] = $option;
             }
         }
-        
         return $table;
     }
 
