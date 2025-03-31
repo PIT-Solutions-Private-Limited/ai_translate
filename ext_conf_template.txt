@@ -15,7 +15,7 @@ enableOpenAi = 1
 # cat=OpenAI Settings//11; type=string; label=API Key
 openaiapiKey =
 # cat=OpenAI Settings//12; type=options[gpt-4,gpt-4o,gpt-4-turbo]; label=Model
-openaiapiModel = 
+openaiapiModel =
 # cat=Gemini settings//13; type=boolean; label= Enable This Feature
 enableGemini = 1
 # cat=Gemini settings//14; type=string; label=API Key
@@ -28,7 +28,3 @@ enableClaude = 1
 openclaudeapiKey =
 # cat=Claude settings//18; type=options[claude-3-opus-20240229,claude-3-sonnet-20240229,claude-3-haiku-20240307]; label=Model
 openclaudeapiModel =
-
-
-
-
