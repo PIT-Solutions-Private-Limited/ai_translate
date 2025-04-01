@@ -30,7 +30,8 @@ class ProcessFileListActionsEventListener
         private readonly ExtensionConfiguration $extensionConfiguration,
         private readonly TranslationConfigurationProvider $translateTools,
         private readonly ConnectionPool $connection,
-        private readonly UriBuilder $uriBuilder
+        private readonly UriBuilder $uriBuilder,
+        private readonly PageRenderer $pageRenderer,
     ) {
         $this->aiServices = [
             'deepl' => 'enableDeepl',
@@ -40,20 +41,21 @@ class ProcessFileListActionsEventListener
             'claudeai' => 'enableClaude',
         ];
         $this->activeAiModels = [];
+        $this->missingTranslations = [];
     }
 
     public function __invoke(ProcessFileListActionsEvent $event): void
     {
         $actions = $event->getActionItems();
-        if ($this->shouldRenderAiButton($event)) {
-            $actions['ai_translate'] = $this->createControlAiTranslation($event->getResource());
+        if ($this->shouldRenderAiButton($event) && !empty($missingTranslations = $this->findMissingTranslations($event->getResource()))) {
+            $actions['ai_translate'] = $this->createControlAiTranslation($event->getResource(), $missingTranslations);
             $event->setActionItems($actions);
-            GeneralUtility::makeInstance(PageRenderer::class)
-                ->loadJavaScriptModule('@pits/ai-translate/file-list-ai-translate-handler.js');
+            $this->pageRenderer->loadJavaScriptModule('@pits/ai-translate/file-list-ai-translate-handler.js');
+            $this->pageRenderer->addInlineLanguageLabelFile('EXT:ai_translate/Resources/Private/Language/locallang.xlf');
         }
     }
 
-    private function createControlAiTranslation(ResourceInterface $resource): ?ButtonInterface
+    private function createControlAiTranslation(ResourceInterface $resource, array $missingTranslations): ?ButtonInterface
     {
         $metadata = $resource->getMetadata()->get();
         $dropdownButton = GeneralUtility::makeInstance(GenericButton::class);
@@ -62,26 +64,27 @@ class ProcessFileListActionsEventListener
         $dropdownButton->setAttributes([
             'type' => 'button',
             'data-action' => 'ai_translate',
-            'data-uid' => $metadata['uid'],
-            'data-missing-translations' => implode(',', $this->missingTranslations),
-            'data-models' => implode(',', $this->activeAiModels),
+            'data-ai-models' => implode(',', $this->activeAiModels),
+            'data-translate-urls' => json_encode($this->buildAiTranslateUrls($metadata['uid'], $missingTranslations, $resource->getParentFolder()->getCombinedIdentifier())),
+            'data-languages' => json_encode($missingTranslations),
         ]);
         return $dropdownButton;
     }
 
     private function shouldRenderAiButton(ProcessFileListActionsEvent $event): bool
     {
-        return $event->isFile() && $this->hasActiveAiModels() && !$this->recordHasAllTranslationsGenerated($event->getResource());
+        return $event->isFile() && $this->hasActiveAiModels();
     }
 
-    private function recordHasAllTranslationsGenerated(ResourceInterface $resource): bool
+    private function findMissingTranslations(ResourceInterface $resource): array
     {
+        $missingTranslations = [];
         $languageField = $GLOBALS['TCA']['sys_file_metadata']['ctrl']['languageField'];
         $backendUser = $this->getBackendUser();
         $languages = [];
         foreach ($this->translateTools->getSystemLanguages() as $language) {
             if ($language['uid'] > 0 && $backendUser->checkLanguageAccess($language['uid'])) {
-                array_push($languages, $language['uid']);
+                array_push($languages, $language);
             }
         }
         $queryBuilder = $this->connection->getQueryBuilderForTable('sys_file_metadata');
@@ -96,19 +99,67 @@ class ProcessFileListActionsEventListener
                 ),
                 $queryBuilder->expr()->in(
                     $languageField,
-                    $languages
+                    array_map(
+                        fn(array $language): int => $language['uid'],
+                        $languages
+                    )
                 )
             )
             ->orderBy($languageField, QueryInterface::ORDER_ASCENDING)
             ->executeQuery()
             ->fetchFirstColumn();
-        $this->missingTranslations = array_diff($languages, $availableLanguages);
-        return empty($this->missingTranslations);
+        foreach ($languages as $language) {
+            if (!in_array($language['uid'], $availableLanguages)) {
+                $missingTranslations[] = $language;
+            }
+        }
+        return $missingTranslations;
+    }
+
+    private function buildAiTranslateUrls(int $uid, array $missingTranslations, string $identifier): array
+    {
+        $urls = [];
+        foreach ($this->activeAiModels as $model) {
+            foreach ($missingTranslations as $language) {
+                $urls[$model][$language['uid']] = (string) $this->uriBuilder->buildUriFromRoute(
+                    'tce_db',
+                    [
+                        'cmd' => [
+                            'sys_file_metadata' => [
+                                $uid => [
+                                    'localize' => $language['uid'],
+                                ]
+                            ],
+                            'localization' => [
+                                'custom' => [
+                                    'mode' => $model,
+                                    'srcLanguageId' => 0
+                                ]
+                            ]
+                        ],
+                        'redirect' => (string) $this->uriBuilder->buildUriFromRoute(
+                            'record_edit',
+                            [
+                                'justLocalized' => 'sys_file_metadata:' . $uid . ':' . $language['uid'],
+                                'returnUrl' => (string) $this->uriBuilder->buildUriFromRoute(
+                                    'media_management',
+                                    [
+                                        'id' => $identifier,
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ]
+                );
+
+            }
+        }
+        return $urls;
     }
 
     private function hasActiveAiModels(): bool
     {
-        $this->activeAiModels = array_filter($this->aiServices, fn(string $model): bool => $this->extensionConfiguration->get('ai_translate', $model));
+        $this->activeAiModels = array_keys(array_filter($this->aiServices, fn(string $model): bool => $this->extensionConfiguration->get('ai_translate', $model)));
         return !empty($this->activeAiModels);
     }
 
