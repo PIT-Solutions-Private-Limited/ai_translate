@@ -33,6 +33,7 @@ class ProcessFileListActionsEventListener
         private readonly UriBuilder $uriBuilder,
         private readonly PageRenderer $pageRenderer,
     ) {
+        // Mapping of the internal identifiers with the enable options in the extension configuration
         $this->aiServices = [
             'deepl' => 'enableDeepl',
             'google' => 'enableGoogleTranslator',
@@ -47,10 +48,19 @@ class ProcessFileListActionsEventListener
     public function __invoke(ProcessFileListActionsEvent $event): void
     {
         $actions = $event->getActionItems();
+        /**
+         * Validate whether the AI translation button should be rendered
+         * The coinditions are:
+         * - The file is a file (not a folder)
+         * - At least one AI model/service is enabled
+         * - The file is not already translated in all available languages for the backend user
+         */
         if ($this->shouldRenderAiButton($event) && !empty($missingTranslations = $this->findMissingTranslations($event->getResource()))) {
             $actions['ai_translate'] = $this->createControlAiTranslation($event->getResource(), $missingTranslations);
             $event->setActionItems($actions);
+            // Add the JavaScript module to the File List so the button can be used
             $this->pageRenderer->loadJavaScriptModule('@pits/ai-translate/file-list-ai-translate-handler.js');
+            // Add translation labels for the JavaScript module
             $this->pageRenderer->addInlineLanguageLabelFile('EXT:ai_translate/Resources/Private/Language/locallang.xlf');
         }
     }
@@ -71,11 +81,25 @@ class ProcessFileListActionsEventListener
         return $dropdownButton;
     }
 
+    /**
+     * Checks whether the AI translation button should be rendered
+     * The conditions are:
+     * - The file is a file (not a folder)
+     * - At least one AI model/service is enabled
+     * @param \TYPO3\CMS\Filelist\Event\ProcessFileListActionsEvent $event
+     * @return bool
+     */
     private function shouldRenderAiButton(ProcessFileListActionsEvent $event): bool
     {
         return $event->isFile() && $this->hasActiveAiModels();
     }
 
+    /**
+     * Finds the missing translations languages for the given resource
+     * The languages are filtered to the translation ones and to the ones the backend user has access to
+     * @param \TYPO3\CMS\Core\Resource\ResourceInterface $resource
+     * @return array
+     */
     private function findMissingTranslations(ResourceInterface $resource): array
     {
         $missingTranslations = [];
@@ -116,6 +140,13 @@ class ProcessFileListActionsEventListener
         return $missingTranslations;
     }
 
+    /**
+     * Builds the URLs for the AI translation services and languages
+     * @param int $uid
+     * @param array $missingTranslations
+     * @param string $identifier
+     * @return array
+     */
     private function buildAiTranslateUrls(int $uid, array $missingTranslations, string $identifier): array
     {
         $urls = [];
@@ -124,6 +155,7 @@ class ProcessFileListActionsEventListener
                 $urls[$model][$language['uid']] = (string) $this->uriBuilder->buildUriFromRoute(
                     'tce_db',
                     [
+                        // cmd to the DataHandler/TCEMain to create the translation using one of the AI models/services
                         'cmd' => [
                             'sys_file_metadata' => [
                                 $uid => [
@@ -137,6 +169,7 @@ class ProcessFileListActionsEventListener
                                 ]
                             ]
                         ],
+                        // Redirect to the record edit form after the translation is created
                         'redirect' => (string) $this->uriBuilder->buildUriFromRoute(
                             'record_edit',
                             [
@@ -157,12 +190,21 @@ class ProcessFileListActionsEventListener
         return $urls;
     }
 
+    /**
+     * Checks whether at least one AI model/service is enabled
+     * @return bool
+     */
     private function hasActiveAiModels(): bool
     {
         $this->activeAiModels = array_keys(array_filter($this->aiServices, fn(string $model): bool => $this->extensionConfiguration->get('ai_translate', $model)));
         return !empty($this->activeAiModels);
     }
 
+    /**
+     * Checks whether the given AI model/service is enabled
+     * @param string $model
+     * @return bool
+     */
     private function hasActiveAiModel(string $model): bool
     {
         return boolval($this->extensionConfiguration->get('ai_translate', $model));
