@@ -55,22 +55,30 @@ class ProcessFileListActionsEventListener
          * - At least one AI model/service is enabled
          * - The file is not already translated in all available languages for the backend user
          */
+        $dropdownButton = GeneralUtility::makeInstance(GenericButton::class);
+        $dropdownButton->setIcon($this->iconFactory->getIcon('actions-translate', Icon::SIZE_SMALL));
+        $dropdownButton->setLabel($GLOBALS['LANG']->sL('LLL:EXT:ai_translate/Resources/Private/Language/locallang.xlf:mlang_tabs_tab'));
         if ($this->shouldRenderAiButton($event) && !empty($missingTranslations = $this->findMissingTranslations($event->getResource()))) {
-            $actions['ai_translate'] = $this->createControlAiTranslation($event->getResource(), $missingTranslations);
-            $event->setActionItems($actions);
+            $this->createControlAiTranslation($dropdownButton, $event->getResource(), $missingTranslations);
+
             // Add the JavaScript module to the File List so the button can be used
             $this->pageRenderer->loadJavaScriptModule('@pits/ai-translate/file-list-ai-translate-handler.js');
             // Add translation labels for the JavaScript module
             $this->pageRenderer->addInlineLanguageLabelFile('EXT:ai_translate/Resources/Private/Language/locallang.xlf');
+        } else {
+            $dropdownButton->setAttributes([
+                'type' => 'button',
+                'disabled' => 'disabled'
+            ]);
         }
+        $actions['ai_translate'] = $dropdownButton;
+        $actions = $this->reorderActions($actions);
+        $event->setActionItems($actions);
     }
 
-    private function createControlAiTranslation(ResourceInterface $resource, array $missingTranslations): ?ButtonInterface
+    private function createControlAiTranslation(GenericButton $dropdownButton, ResourceInterface $resource, array $missingTranslations): ?ButtonInterface
     {
         $metadata = $resource->getMetadata()->get();
-        $dropdownButton = GeneralUtility::makeInstance(GenericButton::class);
-        $dropdownButton->setIcon($this->iconFactory->getIcon('actions-translate', Icon::SIZE_SMALL));
-        $dropdownButton->setLabel($GLOBALS['LANG']->sL('LLL:EXT:ai_translate/Resources/Private/Language/locallang.xlf:mlang_tabs_tab'));
         $dropdownButton->setAttributes([
             'type' => 'button',
             'data-action' => 'ai_translate',
@@ -188,6 +196,21 @@ class ProcessFileListActionsEventListener
             }
         }
         return $urls;
+    }
+
+    private function reorderActions(array $actions): array
+    {
+        $orderedActions = [];
+        foreach ($actions as $key => $action) {
+            if ($key === 'translations') {
+                $orderedActions[$key] = $action;
+                $orderedActions['ai_translate'] = $actions['ai_translate'];
+                unset($actions['ai_translate']);
+            } else {
+                $orderedActions[$key] = $action;
+            }
+        }
+        return $orderedActions;
     }
 
     /**
