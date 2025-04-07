@@ -56,7 +56,7 @@ class ProcessFileListActionsEventListener
          * - The file is not already translated in all available languages for the backend user
          */
         $dropdownButton = GeneralUtility::makeInstance(GenericButton::class);
-        $dropdownButton->setIcon($this->iconFactory->getIcon('actions-translate', Icon::SIZE_SMALL));
+        $dropdownButton->setIcon($this->iconFactory->getIcon('actions-ai-translation', Icon::SIZE_SMALL));
         $dropdownButton->setLabel($GLOBALS['LANG']->sL('LLL:EXT:ai_translate/Resources/Private/Language/locallang.xlf:mlang_tabs_tab'));
         if ($this->shouldRenderAiButton($event) && !empty($missingTranslations = $this->findMissingTranslations($event->getResource()))) {
             $this->createControlAiTranslation($dropdownButton, $event->getResource(), $missingTranslations);

@@ -69,17 +69,25 @@ class FileListAiTranslateHandler {
     MultiStepWizard.blurCancelStep();
     MultiStepWizard.lockNextStep();
     MultiStepWizard.lockPrevStep();
-    /**
+
+    const chunks = [];
+    for (let i = 0; i < aiModels.length; i += 3) {
+      chunks.push(aiModels.slice(i, i + 3));
+    }
+    /** 
      * Render the AI model/service buttons
      * It is done with promises to ensure that all icons are loaded before displaying the buttons
      */
     Promise.all(
-      aiModels.map((model) => this.#renderModelSelection(model))
-    ).then((modelsMarkup) => {
+      chunks.map(async (group) => {
+        const buttons = await Promise.all(
+          group.map((model) => this.#renderModelButton(model))
+        );
+        return `<div class="row form-group">${buttons.join("")}</div>`;
+      })
+    ).then((rows) => {
       // Concat the markup of the buttons
-      slide.html(
-        modelsMarkup.reduce((acc, modelMarkup) => (acc += modelMarkup), "")
-      );
+      slide.html(rows.join(""));
       // Add the click event to the buttons to save the selected model
       slide.on("click", "[data-model-select]", (event) => {
         event.preventDefault();
@@ -98,21 +106,18 @@ class FileListAiTranslateHandler {
    * @param {String} model
    * @returns {String}
    */
-  async #renderModelSelection(model) {
+  async #renderModelButton(model) {
     const icon = await Icons.getIcon(
       `actions-localize-${model}`,
       Icons.sizes.large
     );
     return `
-      <div class="row" data-model="${model}" data-model-select="">
-        <div class="col-sm-3">
-            <label class="btn btn-default d-block">
-                ${icon}
-                <br>
-                <br>
-                ${TYPO3.lang[`localize.wizard.button.${model}`]}
-            </label>
-        </div>
+      <div class="col-sm-4" data-model="${model}" data-model-select="">
+        <label class="btn btn-default d-block">
+          ${icon}
+          <br><br>
+          ${TYPO3.lang[`localize.wizard.button.${model}`]}
+        </label>
       </div>
     `;
   }
@@ -126,26 +131,30 @@ class FileListAiTranslateHandler {
   #aiTranslateChooseLanguage(slide, translateUrls, languages) {
     MultiStepWizard.unlockPrevStep();
     const model = MultiStepWizard.setup.settings.translateModel;
+    const chunks = [];
+    for (let i = 0; i < languages.length; i += 3) {
+      chunks.push(languages.slice(i, i + 3));
+    }
     /**
      * Render language selection buttons
      * It is done with promises to ensure that all icons are loaded before displaying the buttons
      */
     Promise.all(
-      languages.map((language) =>
-        this.#renderLanguageSelection(
-          model,
-          language,
-          translateUrls[model][language.uid]
-        )
-      )
-    ).then((modelsMarkup) => {
+      chunks.map(async (group) => {
+        const buttons = await Promise.all(
+          group.map((language) =>
+            this.#renderLanguageButton(
+              model,
+              language,
+              translateUrls[model][language.uid]
+            )
+          )
+        );
+        return `<div class="row form-group">${buttons.join("")}</div>`;
+      })
+    ).then((rows) => {
       // Concat the markup of the buttons
-      slide.html(
-        modelsMarkup.reduce(
-          (acc, languageMarkup) => (acc += languageMarkup),
-          ""
-        )
-      );
+      slide.html(rows.join(""));
       slide.on("click", "[data-language-select]", (event) => {
         event.preventDefault();
         // Set the URL to the navigation and close the wizard
@@ -162,22 +171,20 @@ class FileListAiTranslateHandler {
    * @param {String} url
    * @returns {String}
    */
-  async #renderLanguageSelection(model, language, url) {
+  async #renderLanguageButton(model, language, url) {
     const icon = await Icons.getIcon(language.flagIcon, Icons.sizes.large);
     return `
-    <div class="row" id="${model}Translate" data-model="${model}">
-      <div class="col-sm-3">
-          <a href="${url}" data-language-select="">
-            <label class="btn btn-default d-block">
-                ${icon}
-                <br>
-                <br>
-                ${language.title}
-            </label>
-          </a>
+      <div class="col-sm-4">
+        <a href="${url}" data-language-select="">
+          <label class="btn btn-default d-block">
+            ${icon}
+            <br><br>
+            ${language.title}
+          </label>
+        </a>
       </div>
-    </div>
-  `;
+    `;
   }
 }
+
 export default new FileListAiTranslateHandler();
