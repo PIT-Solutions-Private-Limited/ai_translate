@@ -34,4 +34,8 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-localize-claudeai.svg',
     ],
+    'actions-ai-translation' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-ai-translation.svg',
+    ],
 ];
