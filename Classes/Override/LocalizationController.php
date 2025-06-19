@@ -38,6 +38,7 @@ namespace PITS\AiTranslate\Override;
  use PITS\AiTranslate\Service\OpenAiService;
  use PITS\AiTranslate\Service\GeminiTranslateService;
  use PITS\AiTranslate\Service\ClaudeTranslateService;
+ use PITS\AiTranslate\Service\CohereTranslateService;
 
 /**
  * LocalizationController handles the AJAX requests for record localization
@@ -85,6 +86,12 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     const ACTION_LOCALIZECLAUDEAI = 'localizeclaudeai';
 
+     /**
+     * @var string
+     */
+
+     const ACTION_LOCALIZECOHEREAI = 'localizecohereai';     
+
     /**
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
@@ -114,7 +121,12 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      /**
      * @var \PITS\AiTranslate\Service\ClaudeTranslateService
      */
-    protected $claudeAiService;    
+    protected $claudeAiService; 
+
+    /**
+     * @var \PITS\AiTranslate\Service\CohereTranslateService
+     */
+    protected $cohereAiService;        
 
     /**
      * @var \TYPO3\CMS\Core\Page\PageRenderer
@@ -132,6 +144,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         $this->openAiService = GeneralUtility::makeInstance(OpenAiService::class);
         $this->geminiAiService = GeneralUtility::makeInstance(GeminiTranslateService::class);
         $this->claudeAiService = GeneralUtility::makeInstance(ClaudeTranslateService::class);
+        $this->cohereAiService = GeneralUtility::makeInstance(CohereTranslateService::class);
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:ai_translate/Resources/Private/Language/locallang.xlf');
     }
@@ -215,7 +228,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         if ($params['action'] !== static::ACTION_COPY && $params['action'] !== static::ACTION_LOCALIZE && $params['action'] !== static::ACTION_LOCALIZEDEEPL 
         && $params['action'] !== static::ACTION_LOCALIZEDEEPL_AUTO && $params['action'] !== static::ACTION_LOCALIZEGOOGLE 
         && $params['action'] !== static::ACTION_LOCALIZEGOOGLE_AUTO && $params['action'] !== static::ACTION_LOCALIZEOPENAI
-        && $params['action'] !== static::ACTION_LOCALIZEGEMINIAI  && $params['action'] !== static::ACTION_LOCALIZECLAUDEAI) {
+        && $params['action'] !== static::ACTION_LOCALIZEGEMINIAI  && $params['action'] !== static::ACTION_LOCALIZECLAUDEAI && $params['action'] !== static::ACTION_LOCALIZECOHEREAI) {
             $response = new Response('php://temp', 400, ['Content-Type' => 'application/json; charset=utf-8']);
             $response->getBody()->write('Invalid action "' . $params['action'] . '" called.');
             return $response;
@@ -242,60 +255,79 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
     protected function process($params): void
     {
         $destLanguageId = (int)$params['destLanguageId'];
-
+    
         // Build command map
         $cmd = [
             'tt_content' => [],
         ];
-
+    
         if (isset($params['uidList']) && is_array($params['uidList'])) {
             foreach ($params['uidList'] as $currentUid) {
-                if ($params['action'] === static::ACTION_LOCALIZE || $params['action'] === static::ACTION_LOCALIZEDEEPL 
-                || $params['action'] === static::ACTION_LOCALIZEDEEPL_AUTO || $params['action'] === static::ACTION_LOCALIZEGOOGLE 
-                || $params['action'] === static::ACTION_LOCALIZEGOOGLE_AUTO || $params['action'] === static::ACTION_LOCALIZEOPENAI
-                || $params['action'] === static::ACTION_LOCALIZEGEMINIAI || $params['action'] === static::ACTION_LOCALIZECLAUDEAI) {
-                    $cmd['tt_content'][$currentUid] = [
+                $command = [];
+                if ($params['action'] === static::ACTION_LOCALIZE 
+                    || $params['action'] === static::ACTION_LOCALIZEDEEPL 
+                    || $params['action'] === static::ACTION_LOCALIZEDEEPL_AUTO 
+                    || $params['action'] === static::ACTION_LOCALIZEGOOGLE 
+                    || $params['action'] === static::ACTION_LOCALIZEGOOGLE_AUTO 
+                    || $params['action'] === static::ACTION_LOCALIZEOPENAI
+                    || $params['action'] === static::ACTION_LOCALIZEGEMINIAI 
+                    || $params['action'] === static::ACTION_LOCALIZECLAUDEAI 
+                    || $params['action'] === static::ACTION_LOCALIZECOHEREAI) {
+                    $command = [
                         'localize' => $destLanguageId,
                     ];
-                    //setting mode and source language for deepl translate.
-                    if ($params['action'] === static::ACTION_LOCALIZEDEEPL || $params['action'] === static::ACTION_LOCALIZEDEEPL_AUTO) {
-                        $cmd['localization']['custom']['mode']          = 'deepl';
-                        $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
-                    } else if ($params['action'] === static::ACTION_LOCALIZEGOOGLE || $params['action'] === static::ACTION_LOCALIZEGOOGLE_AUTO) {
-                        $cmd['localization']['custom']['mode']          = 'google';
-                        $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
-                    }
-                    else if ($params['action'] === static::ACTION_LOCALIZEOPENAI) {
-                        $cmd['localization']['custom']['mode']          = 'openai';
-                        $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
-                    }
-                    else if ($params['action'] === static::ACTION_LOCALIZEGEMINIAI) {
-                        $cmd['localization']['custom']['mode']          = 'geminiai';
-                        $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
-                    }
-                    else if ($params['action'] === static::ACTION_LOCALIZECLAUDEAI) {
-                        $cmd['localization']['custom']['mode']          = 'claudeai';
-                        $cmd['localization']['custom']['srcLanguageId'] = $params['srcLanguageId'];
-                    }           
                 } else {
-                    $cmd['tt_content'][$currentUid] = [
+                    $command = [
                         'copyToLanguage' => $destLanguageId,
                     ];
                 }
+    
+                $cmd['tt_content'][$currentUid] = $command;
             }
         }
-         // Start session (if not already started)
-         if (session_status() === PHP_SESSION_NONE) {
-            session_start();
+    
+        // Set custom mode and source language
+        $customMode = '';
+        switch ($params['action']) {
+            case static::ACTION_LOCALIZEDEEPL:
+            case static::ACTION_LOCALIZEDEEPL_AUTO:
+                $customMode = 'deepl';
+                break;
+            case static::ACTION_LOCALIZEGOOGLE:
+            case static::ACTION_LOCALIZEGOOGLE_AUTO:
+                $customMode = 'google';
+                break;
+            case static::ACTION_LOCALIZEOPENAI:
+                $customMode = 'openai';
+                break;
+            case static::ACTION_LOCALIZEGEMINIAI:
+                $customMode = 'geminiai';
+                break;
+            case static::ACTION_LOCALIZECLAUDEAI:
+                $customMode = 'claudeai';
+                break;
+            case static::ACTION_LOCALIZECOHEREAI:
+                $customMode = 'cohereai';
+                break;
         }
-        
-        // Set session variable
-        $_SESSION['custommode'] = $cmd['localization']['custom']['mode'];
-        $_SESSION['customsrclanguage'] = $cmd['localization']['custom']['srcLanguageId'];
-
+        if ($customMode) {
+            // Store custom data in session instead of command array
+            $this->storeCustomDataInSession($customMode, $params['srcLanguageId']);
+        }
+    
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
         $dataHandler->start([], $cmd);
         $dataHandler->process_cmdmap();
+    }
+    
+    protected function storeCustomDataInSession(string $mode, string $srcLanguageId): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        $_SESSION['custommode'] = $mode;
+        $_SESSION['customsrclanguage'] = $srcLanguageId;
     }
 
      /**
@@ -395,6 +427,27 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
     }
 
     /**
+     * check cohere Settings (model,apikey).
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return array
+     */
+    public function checkcohereSettings(ServerRequestInterface $request)
+    {
+        $extConf            = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        if ($extConf['opencohereapiKey'] != null) {
+            $this->cohereAiService->validateCredentials();
+            $result['status']  = 'true';
+        } else {
+            $result['status']  = 'false';
+            $result['message'] = '';
+        }
+        $result = json_encode($result);
+        echo $result;
+        exit;
+    }    
+
+    /**
      * Return source language Id from source language string
      * @param string $srcLanguage
      * @return int
@@ -423,6 +476,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
 		$result['enableOpenAi'] = $extConf['enableOpenAi'];
 		$result['enableGemini'] = $extConf['enableGemini'];
         $result['enableClaude'] = $extConf['enableClaude'];
+        $result['enableCohere'] = $extConf['enableCohere'];
         
         return new JsonResponse($result);
         

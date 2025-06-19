@@ -30,7 +30,11 @@
             <trans-unit id="localize.educate.claudeai" xml:space="preserve">
                 <source>The process is straightforward – simply provide the text you need translated, and Claude will quickly generate the translation in your desired target language. Please note that the translation is limited to AI's Capabilities.
                 </source>
-            </trans-unit>  
+            </trans-unit> 
+            <trans-unit id="localize.educate.cohereai" xml:space="preserve">
+                <source>The process is straightforward – simply provide the text you need translated, and Cohere will quickly generate the translation in your desired target language. Please note that the translation is limited to AI's Capabilities.
+                </source>
+            </trans-unit>           
             <trans-unit id="deepl_settings" xml:space="preserve">
                 <source>AI Translate Settings</source>
             </trans-unit>
@@ -76,6 +80,9 @@
             <trans-unit id="localize.wizard.button.claudeai" xml:space="preserve">
                 <source><![CDATA[Translate<br>(Claude)]]></source>
             </trans-unit>
+            <trans-unit id="localize.wizard.button.cohereai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Cohere)]]></source>
+            </trans-unit>            
             <trans-unit id="localization.labels.deeplSettingsFailure" xml:space="preserve">
                 <source>Please complete missing deepl configurations.</source>
             </trans-unit>

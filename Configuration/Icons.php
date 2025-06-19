@@ -34,4 +34,8 @@ return [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-localize-claudeai.svg',
     ],
+    'actions-localize-cohereai' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-localize-cohereai.svg',
+    ],    
 ];

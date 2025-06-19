@@ -155,12 +155,10 @@ class SettingsController extends ActionController
             $preSelect = array_filter(unserialize($languageAssignments[0]['languages_assigned']));
         }
         $selectBox = $this->buildTableAssignments($sysLanguages, $preSelect);
-        $this->view->assignMultiple(['sysLanguages' => $sysLanguages, 'selectBox' => $selectBox]);
-
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
-        // Adding title, menus, buttons, etc. using $moduleTemplate ...
-        $moduleTemplate->setContent($this->view->render());
-        return $this->htmlResponse($moduleTemplate->renderContent());
+        $moduleTemplate->assignMultiple(['sysLanguages' => $sysLanguages, 'selectBox' => $selectBox]);
+        return $moduleTemplate->renderResponse('Index');
+    
     }
 
     /**
