@@ -1,8 +1,8 @@
 # AI Translate
 
-This extension provides option to translate content elements and tca record fields to desired language(supported by deepl). As a fallback, Google,openai,gemini,claude translate option is also provided as they provide support for many languages that deepl isn't providing.
+This extension provides option to translate content elements and tca record fields to desired language(supported by deepl). As a fallback, Google,openai,gemini,claude and cohere translate option is also provided as they provide support for many languages that deepl isn't providing.
 For both Deepl translate and Google translate, there are two modes-normal and autodetect, where the later autodetects source language and translates it to the desired language.
-For openai,gemini and claude autodetects source language and translates it to the desired language.
+For openai,gemini , claude and cohere autodetects source language and translates it to the desired language.
 
 ## Installation
 
@@ -25,8 +25,9 @@ Watch our instruction video to get an overview of the extension and how to use i
 
 ## Requirements
 
-- TYPO3 11 (2.1.1)
-- TYPO3 12 (3.1.1)
+- TYPO3 11 (2.1.2)
+- TYPO3 12 (3.1.2)
+- TYPO3 13 (4.1.0)
 
 ## Extension Configuartion
 
@@ -44,6 +45,7 @@ Once the extension is installed and Api key provided we are good to go for trans
 - OpenAi Translate
 - Gemini Translate
 - Claude Translate
+- Cohere Translate
 
 ## Claude AI
 
@@ -76,5 +78,5 @@ For example you can assign German under Austrian German sys language if you wish
 
 ## Changelog
 
-- 3.1.0: Initial release
-- 3.1.1: Claude AI Integration, Record list and Container bug fix
+- 4.1.0: Initial release
+

@@ -18,7 +18,7 @@ $( ".ai-button" ).on( "click", function() {
             var lastIndex = url.lastIndexOf('&cmd[localization]');
             var urlPart = (lastIndex > 0) ? url.substring(0, lastIndex) : url;
             if (document.getElementById(mode + '-translation-enable-' + uid).checked == true) {
-                var newUrl = $(this).attr('href', urlPart + '&cmd[localization][custom][mode]=' + mode + '&cmd[localization][custom][srcLanguageId]= '+defaultlanguage);
+                var newUrl = $(this).attr('href', urlPart + '&cmd[tt_content][1][localizeConfiguration][mode]=' + mode + '&cmd[tt_content][1][localizeConfiguration][srcLanguageId]= '+defaultlanguage);
             }
         }
 

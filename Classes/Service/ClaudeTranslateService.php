@@ -62,7 +62,8 @@ class ClaudeTranslateService
 					'role' => 'user',
 					'content' => $finalPrompt
 				]
-			]
+				],
+			'system' => 'You are a translation service. Only return the translated text without any explanations, prefixes, or additional content.'
 		];
 
 		// Convert request payload to JSON

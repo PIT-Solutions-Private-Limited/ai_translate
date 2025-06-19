@@ -37,6 +37,12 @@ return [
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkclaudeSettings'
     ],
 
+    // Check cohere settings
+    'records_localizecohere' => [
+        'path' => '/records/localizecohere',
+        'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkcohereSettings'
+    ],	    
+
     // check translation options are enabled or diabled
     'records_settingsenabled' => [
         'path' => '/records/settingsenabled',
