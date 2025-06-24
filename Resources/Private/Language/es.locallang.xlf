@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
+	<file t3:id="1415814785" source-language="en" target-language="es" datatype="plaintext"
+		original="messages" date="2011-10-17T20:22:32Z" product-name="deepltranslate">
+		<header />
+		<body>
+			<trans-unit id="localize.educate.deepltranslate" xml:space="preserve">
+                <source>Translating content via Deepl translate will create a translation  from source language to the language you translate to.The translated content will be from deepl translation service which is 99 percentage accurate.Deepl service supports translation to and from English, French, German, Spanish, Italian, Dutch, and Polish languages.Other languages will be ignored and will default to the normal translate operation of TYPO3.</source>
+                <target>Traducir contenido a través de Deepl traducirá del idioma de origen al idioma al que traduces. El contenido traducido será del servicio de traducción Deepl, que es 99 por ciento preciso. El servicio Deepl admite traducciones hacia y desde inglés, francés, alemán, español, italiano, neerlandés y polaco. Otros idiomas serán ignorados y se utilizará la operación de traducción normal de TYPO3.</target>
+            </trans-unit>
+			<trans-unit id="localize.educate.deepltranslateAuto" xml:space="preserve">
+                <source>Translating content via Deepl translate (autodetect) will create a translation  from auto detected source language to the language you translate to.The translated content will be from deepl translation service which is 99 percentage accurate.Deepl service supports translation to and from English, French, German, Spanish, Italian, Dutch, and Polish languages.Other languages will be ignored and will default to the normal translate operation of TYPO3.</source>
+                <target>Traducir contenido a través de Deepl (detección automática) traducirá del idioma de origen detectado automáticamente al idioma al que traduces. El contenido traducido será del servicio de traducción Deepl, que es 99 por ciento preciso. El servicio Deepl admite traducciones hacia y desde inglés, francés, alemán, español, italiano, neerlandés y polaco. Otros idiomas serán ignorados y se utilizará la operación de traducción normal de TYPO3.</target>
+            </trans-unit>
+			<trans-unit id="localize.educate.openai" xml:space="preserve">
+                <source>Translation functionality establishes a direct linkage between the original language and the translated version as your website's configurations. Relocating an element or configuring meta information, like start- or endtime, will be derived from the original content. Please note that the translation is limited to AI's Capabilities.</source>
+                <target>La funcionalidad de traducción establece un vínculo directo entre el idioma original y la versión traducida según las configuraciones de su sitio web. Reubicar un elemento o configurar información meta, como la hora de inicio o fin, se derivará del contenido original. Tenga en cuenta que la traducción está limitada a las capacidades de la IA.</target>
+            </trans-unit>
+			<trans-unit id="localize.educate.geminiai" xml:space="preserve">
+                <source>Google Gemini AI can translate between languages with a high degree of accuracy. This makes it ideal for tasks such as real-time translation, document translation, and website translation. Please note that the translation is limited to AI's Capabilities.</source>
+                <target>Google Gemini AI puede traducir entre idiomas con un alto grado de precisión. Esto lo hace ideal para tareas como la traducción en tiempo real, la traducción de documentos y la traducción de sitios web. Tenga en cuenta que la traducción está limitada a las capacidades de la IA.</target>
+            </trans-unit>
+			<trans-unit id="localize.educate.googleTranslate" xml:space="preserve">
+                <source>Translating content via Google Translate will create a translation  from source language to the language you translate to.The translated content will be from Google translation service.Google service supports a fair share of <![CDATA[<a href="https://cloud.google.com/translate/docs/languages" target="_blank">languages</a>]]>.</source>
+                <target>Traducir contenido a través de Google Translate traducirá del idioma de origen al idioma al que traduces. El contenido traducido será del servicio de traducción de Google. El servicio de Google admite una buena cantidad de <![CDATA[<a href="https://cloud.google.com/translate/docs/languages" target="_blank">idiomas</a>]]>.</target>
+            </trans-unit>
+			<trans-unit id="localize.educate.googleTranslateAuto" xml:space="preserve">
+                <source>Translating content via Google Translate (autodetect) will create a translation  from auto detected source language to the language you translate to.The translated content will be from Google translation service.Google service supports a fair share of <![CDATA[<a href="https://cloud.google.com/translate/docs/languages" target="_blank">languages</a>]]>.</source>
+                <target>Traducir contenido a través de Google Translate (detección automática) traducirá del idioma de origen detectado automáticamente al idioma al que traduces. El contenido traducido será del servicio de traducción de Google. El servicio de Google admite una buena cantidad de <![CDATA[<a href="https://cloud.google.com/translate/docs/languages" target="_blank">idiomas</a>]]>.</target>
+            </trans-unit>
+			<trans-unit id="localize.educate.claudeai" xml:space="preserve">
+                <source>The process is straightforward – simply provide the text you need translated, and Claude will quickly generate the translation in your desired target language. Please note that the translation is limited to AI's Capabilities.</source>
+                <target>El proceso es sencillo: simplemente proporcione el texto que necesita traducir y Claude generará rápidamente la traducción en el idioma de destino deseado. Tenga en cuenta que la traducción está limitada a las capacidades de la IA.</target>
+            </trans-unit>
+			<trans-unit id="deepl_settings" xml:space="preserve">
+                <source>AI Translate Settings</source>
+                <target>Configuraciones de AI Translate</target>
+            </trans-unit>
+			<trans-unit id="settings_success" xml:space="preserve">
+                <source>Language assignments saved successfully</source>
+                <target>Asignaciones de idioma guardadas con éxito</target>
+            </trans-unit>
+			<trans-unit id="settings_assign" xml:space="preserve">
+                <source>Assign languages</source>
+                <target>Asignar idiomas</target>
+            </trans-unit>
+			<trans-unit id="settings_no_language" xml:space="preserve">
+                <source>No system languages found.</source>
+                <target>No se encontraron idiomas del sistema.</target>
+            </trans-unit>
+			<trans-unit id="languageId" xml:space="preserve">
+                <source>Language Id</source>
+                <target>Id de idioma</target>
+            </trans-unit>
+			<trans-unit id="syslanguage" xml:space="preserve">
+                <source>System Language</source>
+                <target>Idioma del sistema</target>
+            </trans-unit>
+			<trans-unit id="deepliso" xml:space="preserve">
+                <source>Assigned Language(ISO Code)</source>
+                <target>Idioma asignado (código ISO)</target>
+            </trans-unit>
+			<trans-unit id="mlang_tabs_tab" xml:space="preserve">
+                <source>AI Translate</source>
+                <target>Traducir con IA</target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.deepl" xml:space="preserve">
+                <source><![CDATA[Translate<br>(deepl)]]></source>
+                <target><![CDATA[Traducir<br>(deepl)]]></target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.deeplauto" xml:space="preserve">
+                <source><![CDATA[Translate<br>(deepl)<br>(autodetect)]]></source>
+                <target><![CDATA[Traducir<br>(deepl)<br>(detección automática)]]></target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.google" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Google)]]></source>
+                <target><![CDATA[Traducir<br>(Google)]]></target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.googleauto" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Google)<br>(autodetect)]]></source>
+                <target><![CDATA[Traducir<br>(Google)<br>(detección automática)]]></target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.openai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(OpenAI)]]></source>
+                <target><![CDATA[Traducir<br>(OpenAI)]]></target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.geminiai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Gemini)]]></source>
+                <target><![CDATA[Traducir<br>(Gemini)]]></target>
+            </trans-unit>
+			<trans-unit id="localize.wizard.button.claudeai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Claude)]]></source>
+                <target><![CDATA[Traducir<br>(Claude)]]></target>
+            </trans-unit>
+			<trans-unit id="localization.labels.deeplSettingsFailure" xml:space="preserve">
+                <source>Please complete missing deepl configurations.</source>
+                <target>Por favor complete las configuraciones que faltan de deepl.</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.googleSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Google translator configurations.</source>
+                <target>Por favor complete las configuraciones que faltan del traductor de Google.</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.openaiSettingsFailure" xml:space="preserve">
+                <source>Please complete missing OpenAI configurations.</source>
+                <target>Por favor complete las configuraciones que faltan de OpenAI.</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.geminiSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Gemini configurations.</source>
+                <target>Por favor complete las configuraciones que faltan de Gemini.</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.claudeSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Claude configurations.</source>
+                <target>Por favor complete las configuraciones que faltan de Claude.</target>
+            </trans-unit>
+
+			<!-- File List Translate Wizard -->
+			<trans-unit id="localization.labels.filelist.wizard.aiTranslateChooseModel.title" xml:space="preserve">
+                <source>Choose translation service</source>
+                <target>Elija el servicio de traducción</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.filelist.wizard.aiTranslateChooseLanguage.title" xml:space="preserve">
+                <source>Choose language to translate</source>
+                <target>Elija el idioma al que quiere traducir</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.filelist.wizard.progressBar.aiTranslateChooseModel.title" xml:space="preserve">
+                <source>Choose service</source>
+                <target>Eligir servicio</target>
+            </trans-unit>
+			<trans-unit id="localization.labels.filelist.wizard.progressBar.aiTranslateChooseLanguage.title" xml:space="preserve">
+                <source>Choose language</source>
+                <target>Elegir idioma</target>
+            </trans-unit>
+		</body>
+	</file>
+</xliff>

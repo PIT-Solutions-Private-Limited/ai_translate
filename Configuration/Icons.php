@@ -37,5 +37,9 @@ return [
     'actions-localize-cohereai' => [
         'provider' => SvgIconProvider::class,
         'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-localize-cohereai.svg',
-    ],    
+    ],
+    'actions-ai-translation' => [
+        'provider' => SvgIconProvider::class,
+        'source' => 'EXT:ai_translate/Resources/Public/Icons/actions-ai-translation.svg',
+    ],
 ];
