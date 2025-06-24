@@ -12,7 +12,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Ai Translate',
-    'description' => 'This extension provides option to translate content element, and tca record texts to Deepl, Google, OpenAI and Gemini supported languages.',
+    'description' => 'This extension provides option to translate content element, and tca record texts to Deepl, Google, OpenAI, Gemini and Cohere supported languages.',
     'category' => 'module',
     'author' => 'PIT Solutions',
     'author_email' => 'contact@pitsolutions.com',
@@ -24,7 +24,7 @@ $EM_CONF[$_EXTKEY] = [
     'version' => '3.1.0',
     'constraints' => [
         'depends' => [
-            'typo3' => '12.0.0-12.4.99',
+            'typo3' => '13.0.0-13.4.99',
         ],
         'conflicts' => [],
         'suggests' => [],

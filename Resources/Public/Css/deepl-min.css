@@ -1,4 +1,4 @@
-input.deepl-button,input.google-button,input.openai-button,input.geminiai-button,input.claudeai-button {
+input.deepl-button,input.google-button,input.openai-button,input.geminiai-button,input.claudeai-button,input.cohereai-button {
     display: none !important;
 }
 input.deepl-button+span {
@@ -145,6 +145,36 @@ input.claudeai-button:checked+span {
     opacity: 1 !important;
     margin-bottom: 5px;
 }
+
+input.cohereai-button+span {
+    position: relative !important;
+    top: 0px !important;
+    background: url(../Icons/actions-localize-cohereai.svg) !important;
+    background-size: contain !important;
+    height: 20px !important;
+    width: 26px !important;
+    display: inline-block !important;
+    padding: 0 0 0 0 !important;
+    margin-top: 0 !important;
+    background-repeat: no-repeat !important;
+    opacity: .5 !important;
+    margin-bottom: 5px;
+}
+input.cohereai-button:checked+span {
+    position: relative !important;
+    top: 0px !important;
+    background: url('../Icons/actions-localize-cohereai.svg') !important;
+    background-size: contain !important;
+    height: 20px !important;
+    width: 26px !important;
+    display: inline-block !important;
+    padding: 0 0 0 0 !important;
+    margin-top: 0 !important;
+    background-repeat: no-repeat !important;
+    opacity: 1 !important;
+    margin-bottom: 5px;
+}
+
 .deepl-btn-wrap {
     padding: 0;
 }
@@ -186,4 +216,13 @@ label.deepl-btn-wrap {
     border-left: none;
     border-start-start-radius: 0px;
     border-end-start-radius: 0;
+}
+.col-localizationb .t3js-action-localize.disabled {
+    background: url(../Icons/loading.gif) !important;
+    background-size: cover !important;
+    position: relative;
+    z-index: 1050;
+}
+.t3js-action-localize.disabled .icon img {
+    opacity: 0.2 !important;
 }

@@ -12,7 +12,7 @@ class GeminiTranslateService
     protected $apiModel;
     protected $apiUrl;
     protected $requestFactory;
-    protected  $prompt = 'Translate the following text to %s language (keeping HTML unchanged): ';
+    protected  $prompt = 'Translate the following text to %s language (keeping HTML tags unchanged): ';
 
     public function __construct()
     {

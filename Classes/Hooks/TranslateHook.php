@@ -35,6 +35,7 @@ use PITS\AiTranslate\Service\GoogleTranslateService;
 use PITS\AiTranslate\Service\OpenAiService;
 use PITS\AiTranslate\Service\GeminiTranslateService;
 use PITS\AiTranslate\Service\ClaudeTranslateService;
+use PITS\AiTranslate\Service\CohereTranslateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ServerRequestInterface;
@@ -72,6 +73,11 @@ class TranslateHook
     protected $claudeAiService;
 
     /**
+     * @var \PITS\AiTranslate\Service\CohereTranslateService
+     */
+    protected $cohereAiService;     
+
+    /**
      * @var \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository
      */
     protected $deeplSettingsRepository;
@@ -104,8 +110,9 @@ class TranslateHook
         $this->deeplService            = GeneralUtility::makeInstance(DeeplService::class);
         $this->googleService           = GeneralUtility::makeInstance(GoogleTranslateService::class);
         $this->openAiService           = GeneralUtility::makeInstance(OpenAiService::class);
-        $this->geminiAiService           = GeneralUtility::makeInstance(GeminiTranslateService::class);
-        $this->claudeAiService           = GeneralUtility::makeInstance(ClaudeTranslateService::class);
+        $this->geminiAiService         = GeneralUtility::makeInstance(GeminiTranslateService::class);
+        $this->claudeAiService         = GeneralUtility::makeInstance(ClaudeTranslateService::class);
+        $this->cohereAiService         = GeneralUtility::makeInstance(CohereTranslateService::class);
         $this->deeplSettingsRepository = GeneralUtility::makeInstance(DeeplSettingsRepository::class);
         $this->siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
     }
@@ -128,12 +135,21 @@ class TranslateHook
             }
             break;
         }
+      
         $modeFromSession = ($_SESSION['custommode']) ?? null;
         $srcFromSession = ($_SESSION['customsrclanguage']) ?? null;
-        $customMode = isset($cmdmap['localization']['custom']['mode'])? $cmdmap['localization']['custom']['mode'] : $modeFromSession;
-        $srcLanguageId = isset($cmdmap['localization']['custom']['srcLanguageId'])? $cmdmap['localization']['custom']['srcLanguageId'] : $srcFromSession;
-
+        $customMode = isset($cmdmap['localization']['custom']['mode']) 
+        ? $cmdmap['localization']['custom']['mode'] 
+        : (isset($cmdmap['tt_content'][1]['localizeConfiguration']['mode']) 
+            ? $cmdmap['tt_content'][1]['localizeConfiguration']['mode'] 
+            : $modeFromSession);
+        $srcLanguageId = isset($cmdmap['localization']['custom']['srcLanguageId'])
+            ? $cmdmap['localization']['custom']['srcLanguageId'] 
+            : (isset($cmdmap['tt_content'][1]['localizeConfiguration']['srcLanguageId']) 
+                ? $cmdmap['tt_content'][1]['localizeConfiguration']['srcLanguageId'] 
+                : $srcFromSession);
         $customMode = $customMode ?? null;
+
         if ($customMode === null) {
             return $content;
         }
@@ -164,9 +180,6 @@ class TranslateHook
                 $sourceLanguageIso = $sourceLanguage['twoLetterIsoCode'];
                 $deeplSourceIso    = $sourceLanguageIso;
             }
-            /*if ($this->isHtml($content)) {
-                $content = $this->stripSpecificTags(['br'], $content);
-            }*/
             //mode deepl
             if ($customMode == 'deepl') {
                 //if target language and source language among supported languages
@@ -300,6 +313,25 @@ class TranslateHook
    
                 }
             }  
+            elseif ($customMode == 'cohereai') {
+                if (in_array(strtoupper($targetLanguage['twoLetterIsoCode']), $this->deeplService->apiSupportedLanguages)) 
+                {
+                    if ($tablename == 'tt_content') {
+                        $response = $this->cohereAiService->translateRequest($content, $targetLanguage['twoLetterIsoCode'], $deeplSourceIso);
+                    }
+                    else {
+                        $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
+                        $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
+
+                        if (!empty($selectedTCAvalues)) {
+                            $response = $this->cohereAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
+                        }
+                    }   
+                    $content = $response;
+   
+                }
+            } 
+
         }
     }
 

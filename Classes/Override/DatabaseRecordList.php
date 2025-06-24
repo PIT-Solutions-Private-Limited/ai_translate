@@ -101,7 +101,9 @@ class DatabaseRecordList extends \TYPO3\CMS\Backend\RecordList\DatabaseRecordLis
         if($enabled->enableClaude == '1') {
         $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a ai-translate-button" title="Claude AI"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="claudeai-button ai-button" id="claudeai-translation-enable-'.$row["uid"].'" type="checkbox" name="data[claudeai.enable]" data-uid="'.$row["uid"].'" data-mode="claudeai" data-defaultlanguage ="'.$defaultLanguage.'" /><span class="ai-span"></span></label></a>';
         }
-
+        if($enabled->enableCohere == '1') {
+            $localizationAi .= '<a data-state="hidden" href="#" data-params="data[$table][$uid][hidden]=0" class="ai-a" title="Cohere AI"><label class="btn btn-default btn-checkbox deepl-btn-wrap"><input class="cohereai-button ai-button" id="cohereai-translation-enable-'.$row["uid"].'" type="checkbox" name="data[cohereai.enable]" onclick="languageTranslate(\''.$table.'\','.$row["uid"].', \'cohereai\')" /><span class="ai-span"></span></label></a>';
+        }
         }
 
         $out .= $localizationAi;
