@@ -5,6 +5,7 @@ use GuzzleHttp\Exception\ClientException;
 use PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 class GeminiTranslateService
 {
@@ -19,7 +20,7 @@ class GeminiTranslateService
         $this->requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
 
         // Load configuration from TYPO3
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf =  GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         $this->apiModel = isset($extConf["opengoogleapiModel"]) ? $extConf["opengoogleapiModel"] : '';
         $this->apiKey = isset($extConf["opengoogleapiKey"]) ? $extConf["opengoogleapiKey"] : '';
         $this->apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/'.$this->apiModel.':generateContent?key=' . $this->apiKey;

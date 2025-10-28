@@ -31,6 +31,7 @@ namespace PITS\AiTranslate\Service;
 use GuzzleHttp\Exception\ClientException;
 use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 class GoogleTranslateService
 {
@@ -56,7 +57,7 @@ class GoogleTranslateService
     public function __construct()
     {
         $this->requestFactory = GeneralUtility::makeInstance(RequestFactory::class);
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         $this->apiUrl         = $extConf['googleapiUrl'];
         $this->apiKey         = $extConf['googleapiKey'];
     }
