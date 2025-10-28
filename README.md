@@ -27,7 +27,7 @@ Watch our instruction video to get an overview of the extension and how to use i
 
 - TYPO3 11 (2.1.2)
 - TYPO3 12 (3.1.2)
-- TYPO3 13 (4.1.0)
+- TYPO3 13 (4.0.1)
 
 ## Extension Configuartion
 

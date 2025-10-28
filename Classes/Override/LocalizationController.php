@@ -39,6 +39,7 @@ namespace PITS\AiTranslate\Override;
  use PITS\AiTranslate\Service\GeminiTranslateService;
  use PITS\AiTranslate\Service\ClaudeTranslateService;
  use PITS\AiTranslate\Service\CohereTranslateService;
+ use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 /**
  * LocalizationController handles the AJAX requests for record localization
@@ -339,7 +340,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
     public function checkdeeplSettings(ServerRequestInterface $request)
     {
         $result             = [];
-        $extConf            = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf            = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         if ($this->deeplService->apiKey != null && $this->deeplService->apiUrl != null) {
             $result = $this->deeplService->validateCredentials();
             
@@ -358,7 +359,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     public function checkgoogleSettings(ServerRequestInterface $request)
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         if ($extConf['googleapiKey'] != null && $extConf['googleapiUrl'] != null) {
             $result = $this->googleService->validateCredentials();
         } else {
@@ -377,7 +378,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     public function checkopenaiSettings(ServerRequestInterface $request)
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         if ($extConf['openaiapiModel'] != null && $extConf['openaiapiKey'] != null) {
             $result = $this->openAiService->validateCredentials();
         } else {
@@ -396,7 +397,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     public function checkgeminiSettings(ServerRequestInterface $request)
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         if ($extConf['opengoogleapiKey'] != null && $extConf['opengoogleapiModel'] != null) {
             $result = $this->geminiAiService->validateCredentials();
         } else {
@@ -415,7 +416,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     public function checkclaudeSettings(ServerRequestInterface $request)
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         if ($extConf['openclaudeapiKey'] != null && $extConf['openclaudeapiModel'] != null) {
             $result = $this->claudeAiService->validateCredentials();
         } else {
@@ -434,7 +435,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
     public function checkcohereSettings(ServerRequestInterface $request)
     {
-        $extConf            = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf            = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         if ($extConf['opencohereapiKey'] != null) {
             $this->cohereAiService->validateCredentials();
             $result['status']  = 'true';
@@ -470,7 +471,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      */
    public function checkSettingsEnabled(ServerRequestInterface $request = null)
     {
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
 		$result['enableDeepl'] = $extConf['enableDeepl'];
 		$result['enableGoogleTranslator'] = $extConf['enableGoogleTranslator'];
 		$result['enableOpenAi'] = $extConf['enableOpenAi'];

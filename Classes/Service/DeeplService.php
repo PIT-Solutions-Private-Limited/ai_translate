@@ -34,6 +34,7 @@ use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use GuzzleHttp\Client;
 use TYPO3\CMS\Core\Http\JsonResponse;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 class DeeplService
 {
@@ -75,7 +76,7 @@ class DeeplService
     public function __construct()
     {
 
-        $extConf = $GLOBALS['TYPO3_CONF_VARS']['EXTENSIONS']['ai_translate'];
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
         $this->deeplSettingsRepository = GeneralUtility::makeInstance(DeeplSettingsRepository::class);
         $this->requestFactory          = GeneralUtility::makeInstance(RequestFactory::class);
 
