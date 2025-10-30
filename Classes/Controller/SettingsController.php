@@ -144,9 +144,10 @@ class SettingsController extends ActionController
         }
         $sites = $this->siteFinder->getAllSites();
         foreach($sites as $site){
-            $siteLanguageArray[] = $site->getAllLanguages();
+            $siteLanguageArray[$site->getIdentifier()] = $site->getAllLanguages();
         }
-        $sysLanguages = call_user_func_array('array_merge', $siteLanguageArray);        
+        //$sysLanguages = call_user_func_array('array_merge', $siteLanguageArray);
+        $sysLanguages  = $siteLanguageArray;
         $data         = [];
         $preSelect    = [];
         //get existing assignments if any
@@ -200,15 +201,28 @@ class SettingsController extends ActionController
     {
         $table        = [];
         $selectedKeys = array_keys($preselectedValues);
-        foreach ($sysLanguages as $sysLanguage) {
-            $syslangIso = $sysLanguage->getLocale()->getLanguageCode();
-            $option     =  $sysLanguage->toArray();
-            $languageId = $sysLanguage->getLanguageId();
-            if (in_array($languageId, $selectedKeys) || 
-            in_array(strtoupper($syslangIso), $this->deeplService->apiSupportedLanguages)) {
-                $option['value'] = $preselectedValues[$languageId] ?? strtoupper($syslangIso);
+        
+        foreach ($sysLanguages as $siteIdentifier => $sysLanguageArray) {
+            if (array_key_exists($siteIdentifier, $preselectedValues)) {
+                $selectedKeys
+                    = array_keys($preselectedValues[$siteIdentifier]);
+            } else {
+                $selectedKeys = [];
             }
-            $table[] = $option;
+            foreach ($sysLanguageArray as $sysLanguage) {
+                $syslangIso = $sysLanguage->getLocale()
+                    ->getLanguageCode();
+                $option = $sysLanguage->toArray();
+                $languageId = $sysLanguage->getLanguageId();
+                if (in_array($languageId, $selectedKeys)
+                    || in_array(strtoupper($syslangIso), $this->deeplService->apiSupportedLanguages)) {
+                    $option['value'] = $preselectedValues[$languageId]
+                        ??
+                        strtoupper($syslangIso);
+                }
+                $table[$siteIdentifier][] = $option;
+            }
+
         }
         
         return $table;
