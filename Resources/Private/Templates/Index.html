@@ -17,14 +17,17 @@
                           <th><f:translate key="syslanguage"/></th>
                           <th><f:translate key="deepliso"/></th>
                         </tr>
-                        <f:for each="{selectBox}" as="sysLanguage" key="deeplIso">
-                          <tr>
-                            <td>{sysLanguage.languageId}</td>
-                            <td>{sysLanguage.title}</td>
-                            <td>
-                              <f:form.textfield name="languages[{sysLanguage.languageId}]"  maxlength="5" class="languageAssigned"  value="{sysLanguage.value}"/>
-                            </td>
-                          </tr>
+                        <f:for each="{selectBox}" as="sysLanguageArray" key="siteIdentifier">
+                           <tr><td colspan="3">{siteIdentifier}</td></tr>
+                            <f:for each="{sysLanguageArray}" as="sysLanguage" key="deeplIso">
+                              <tr>
+                                <td>{sysLanguage.languageId}</td>
+                                <td>{sysLanguage.title}</td>
+                                <td>
+                                  <f:form.textfield name="languages[{siteIdentifier}][{sysLanguage.languageId}]"  maxlength="5" class="languageAssigned"  value="{sysLanguage.value}"/>
+                                </td>
+                              </tr>
+                            </f:for>
                         </f:for>
                       </tbody>
                     </table>

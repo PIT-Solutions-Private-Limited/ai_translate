@@ -42,7 +42,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Http\ApplicationType;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Site\SiteFinder;
-use TYPO3\CMS\Core\TypoScript\TemplateService;
+
 
 class TranslateHook
 {
@@ -157,14 +157,20 @@ class TranslateHook
         if (!is_null($customMode)) {
             $langParam          = explode('-', $srcLanguageId);
             $sourceLanguageCode = $langParam[0];
-            $sites = $this->siteFinder->getAllSites();
+            /*$sites = $this->siteFinder->getAllSites();
             foreach($sites as $site){
                 $targetLanguage = $site->getLanguageById($languageRecord['uid'])->toArray();
                 $sourceLanguage = $site->getLanguageById((int) $sourceLanguageCode)->toArray();
-            }
+            }*/
+            $pid = $_REQUEST['pageId'];            
+            $site = $this->siteFinder->getSiteByPageId($pid);
+            $siteIdentifier = $site->getIdentifier();
+            $targetLanguage = $site->getLanguageById($languageRecord['uid'])->toArray();
+            $sourceLanguage = $site->getLanguageById((int) $sourceLanguageCode)->toArray();
             
             //get target language mapping if any
-            $targetLanguageMapping = $this->deeplSettingsRepository->getMappings($targetLanguage['languageId']);
+            $targetLanguageMapping = $this->deeplSettingsRepository->getMappings($targetLanguage['languageId'], $siteIdentifier);
+           
             if ($targetLanguageMapping != null) {
                 $targetLanguage['twoLetterIsoCode'] = $targetLanguageMapping;
             }
@@ -173,7 +179,7 @@ class TranslateHook
                 //choose between default and autodetect
                 $deeplSourceIso = ($sourceLanguageCode == 'auto' ? null : 'EN');
             } else {
-                $sourceLanguageMapping = $this->deeplSettingsRepository->getMappings($sourceLanguage['languageId']);
+                $sourceLanguageMapping = $this->deeplSettingsRepository->getMappings($sourceLanguage['languageId'], $siteIdentifier);                 
                 if ($sourceLanguageMapping != null) {
                     $sourceLanguage['twoLetterIsoCode'] = $sourceLanguageMapping;
                 }
@@ -404,20 +410,19 @@ class TranslateHook
      */
     public function getTemplateValues($recorddata, $table, $field, $content)
     {
-        $rootLineUtility = GeneralUtility::makeInstance('TYPO3\CMS\Core\Utility\RootlineUtility',$recorddata['pid']);
-        $rootLine = $rootLineUtility->get();
-        $TSObj = GeneralUtility::makeInstance(TemplateService::class);
-        $TSObj->tt_track = 0;
-        $TSObj->runThroughTemplates($rootLine);
-        $TSObj->generateConfig();
         if ($table != '') {
-            $fieldlist = isset($TSObj->setup['plugin.'][$table . '.']) ? $TSObj->setup['plugin.'][$table . '.']['translatableTCAvalues']: null;
-            if ($fieldlist != null && strpos($fieldlist, $field) !== false) {
+     
+            $pageTsConfig = BackendUtility::getPagesTSconfig($recorddata['pid']);
+            // Check if field is translatable via TSconfig
+            $fieldlist = $pageTsConfig['plugin.'][$table . '.']['translatableTCAvalues'] ?? null;
+            
+            if ($fieldlist !== null && str_contains($fieldlist, $field)) {
                 $value = $this->deeplSettingsRepository->getRecordField($table, $field, $recorddata);
-            } else {
-                return $content;
+                return $value;
             }
         }
+        
+        return $content;
     }
 
 }
