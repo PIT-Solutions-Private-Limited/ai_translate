@@ -1,0 +1,5 @@
+options {
+    file_list {
+        primaryActions = view,metadata,translations,ai_translate,delete
+    }
+}
