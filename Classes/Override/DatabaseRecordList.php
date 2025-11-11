@@ -63,6 +63,7 @@ class DatabaseRecordList extends \TYPO3\CMS\Backend\RecordList\DatabaseRecordLis
                 $params = [];
                 $params['redirect'] = $redirectUrl;
                 $params['cmd'][$table][$row['uid']]['localize'] = $lUid_OnPage;
+                $params['pageId'] = $pageId;
                 $href = (string)$this->uriBuilder->buildUriFromRoute('tce_db', $params);
                 $title = htmlspecialchars($languageInformation[$lUid_OnPage]['title'] ?? '');
 

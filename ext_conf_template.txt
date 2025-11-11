@@ -20,7 +20,7 @@ openaiapiModel =
 enableGemini = 1
 # cat=Gemini settings//14; type=string; label=API Key
 opengoogleapiKey =
-# cat=Gemini settings//15; type=options[gemini-1.5-flash]; label=Model
+# cat=Gemini settings//15; type=options[gemini-2.5-flash]; label=Model
 opengoogleapiModel =
 # cat=Claude settings//16; type=boolean; label= Enable This Feature
 enableClaude = 1
