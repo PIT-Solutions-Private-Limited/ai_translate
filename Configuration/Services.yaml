@@ -5,5 +5,11 @@ services:
     public: false
 
   PITS\AiTranslate\:
-    resource: '../Classes/*'
-    exclude: '../Classes/Domain/Model/*'
+    resource: "../Classes/*"
+    exclude: "../Classes/Domain/Model/*"
+
+  PITS\AiTranslate\EventListener\ProcessFileListActionsEventListener:
+    tags:
+      - name: "event.listener"
+        identifier: "ai_translate.sys_file_metadata"
+        event: TYPO3\CMS\Filelist\Event\ProcessFileListActionsEvent
