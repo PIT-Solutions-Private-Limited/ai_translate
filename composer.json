@@ -1,6 +1,6 @@
 {
   "name": "pits/ai_translate",
-  "description" : "AI Translate brings fast, flexible translation directly into the TYPO3 backend. Translate content elements and TCA records automatically using leading AI and translation services - including Google Translate, DeepL, OpenAI (ChatGPT), Gemini, Claude and Cohere. Editors can auto-detect source language or select languages manually, making it a powerful auto translate and language translation solution for multilingual TYPO3 websites.",
+  "description" : "AI Translate brings fast, flexible translation directly into the TYPO3 backend. Translate content elements and TCA records automatically using leading AI and translation services - including Google Translate, DeepL, OpenAI (ChatGPT), Gemini, Claude , Cohere and Mistral. Editors can auto-detect source language or select languages manually, making it a powerful auto translate and language translation solution for multilingual TYPO3 websites.",
   "license": "GPL-2.0+",
   "autoload": {
         "psr-4": {

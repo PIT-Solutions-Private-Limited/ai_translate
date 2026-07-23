@@ -1,8 +1,6 @@
 # AI Translate
 
-This extension provides option to translate content elements and tca record fields to desired language(supported by deepl). As a fallback, Google,openai,gemini,claude,cohere and mistral translate option is also provided as they provide support for many languages that deepl isn't providing.
-For both Deepl translate and Google translate, there are two modes-normal and autodetect, where the later autodetects source language and translates it to the desired language.
-For openai,gemini , claude, cohere and mistral autodetects source language and translates it to the desired language.
+AI Translate brings fast, flexible translation directly into the TYPO3 backend. Translate content elements and TCA records automatically using leading AI and translation services - including Google Translate, DeepL, OpenAI (ChatGPT), Gemini, Claude , Cohere and Mistral. Editors can auto-detect source language or select languages manually, making it a powerful auto translate and language translation solution for multilingual TYPO3 websites.
 
 ## Installation
 
