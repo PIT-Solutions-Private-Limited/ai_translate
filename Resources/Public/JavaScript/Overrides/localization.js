@@ -18,6 +18,7 @@ import {
 import AjaxRequest from "@typo3/core/ajax/ajax-request.js";
 import Icons from "@typo3/backend/icons.js";
 import Wizard from "@typo3/backend/wizard.js";
+import Notification from "@typo3/backend/notification.js";
 import "@typo3/backend/element/icon-element.js";
 class Localization {
     constructor() {
@@ -34,7 +35,8 @@ class Localization {
             Icons.getIcon("actions-localize-openai", Icons.sizes.large).then((h => {
             Icons.getIcon("actions-localize-geminiai", Icons.sizes.large).then((j => {
             Icons.getIcon("actions-localize-claudeai", Icons.sizes.large).then((cl => {
-            Icons.getIcon("actions-localize-cohereai", Icons.sizes.large).then((ch => {    
+            Icons.getIcon("actions-localize-cohereai", Icons.sizes.large).then((ch => {
+            Icons.getIcon("actions-localize-mistralai", Icons.sizes.large).then((mi => {
                 $(e.triggerButton).removeClass("disabled"), $(document).on("click", e.triggerButton, (e => {
                     /*Eanble or disable custom icons based on extension settings */
                     var deeplCodeBlock = '';
@@ -45,6 +47,7 @@ class Localization {
                     var geminiaiCodeBlock = '';
                     var claudeaiCodeBlock = '';
                     var cohereaiCodeBlock = '';
+                    var mistralaiCodeBlock = '';
                     this.aiSettingsEanbled().then((async aiSettingsResult => {
                         const aiSettings = await aiSettingsResult.resolve();
                         
@@ -67,7 +70,10 @@ class Localization {
                         }
                         if(aiSettings['enableCohere'] == 1) {
                             cohereaiCodeBlock = '<div class="row" id="cohereaiTranslate"><div class="col-sm-3"><label class="btn btn-default d-block t3js-localization-option" data-helptext=".t3js-helptext-cohereaitranslate">' + ch + '<input type="radio" name="mode" id="mode_opencoheretranslate" value="localizecohereai" style="display: none"><br><br>' + TYPO3.lang["localize.wizard.button.cohereai"]+ '</label><br></div><div class="col-sm-9" id="cohereaiText"><p class="t3js-helptext t3js-helptext-translate text-body-secondary">' + TYPO3.lang["localize.educate.cohereai"] + "</p></div></div>";
-                        }        
+                        }
+                        if(aiSettings['enableMistral'] == 1) {
+                            mistralaiCodeBlock = '<div class="row" id="mistralaiTranslate"><div class="col-sm-3"><label class="btn btn-default d-block t3js-localization-option" data-helptext=".t3js-helptext-mistralaitranslate">' + mi + '<input type="radio" name="mode" id="mode_openmistraltranslate" value="localizemistralai" style="display: none"><br><br>' + TYPO3.lang["localize.wizard.button.mistralai"]+ '</label><br></div><div class="col-sm-9" id="mistralaiText"><p class="t3js-helptext t3js-helptext-translate text-body-secondary">' + TYPO3.lang["localize.educate.mistralai"] + "</p></div></div>";
+                        }
                     e.preventDefault();
                     const o = $(e.currentTarget),
                         i = [],
@@ -82,7 +88,8 @@ class Localization {
                     + geminiaiCodeBlock
                     + claudeaiCodeBlock
                     + cohereaiCodeBlock
-                    ), 
+                    + mistralaiCodeBlock
+                    ),
                     l.push("localize")), o.data("allowCopy") && (i.push('<div class="row"><div class="col-sm-3"><label class="btn btn-default d-block t3js-localization-option" data-helptext=".t3js-helptext-copy">' + t + '<input type="radio" name="mode" id="mode_copy" value="copyFromLanguage" style="display: none"><br>' + TYPO3.lang["localize.wizard.button.copy"] + '</label></div><div class="col-sm-9"><p class="t3js-helptext t3js-helptext-copy text-body-secondary">' + TYPO3.lang["localize.educate.copy"] + "</p></div></div>"), 
                     l.push("copyFromLanguage")), 0 === o.data("allowTranslate") && 0 === o.data("allowCopy") && i.push('<div class="row"><div class="col-sm-12"><div class="alert alert-warning"><div class="media"><div class="media-left"><span class="icon-emphasized"><typo3-backend-icon identifier="actions-exclamation" size="small"></typo3-backend-icon></span></div><div class="media-body"><p class="alert-message">' + TYPO3.lang["localize.educate.noTranslate"] + "</p></div></div></div></div></div>"), s += '<div data-bs-toggle="buttons">' + i.join("") + "</div>", Wizard.addSlide("localize-choose-action", TYPO3.lang["localize.wizard.header_page"].replace("{0}", o.data("page")).replace("{1}", o.data("languageName")), s, SeverityEnum.info, (() => {
                         1 === l.length && (this.localizationMode = l[0])
@@ -178,8 +185,17 @@ class Localization {
                             }))
                         }))
                     })), Wizard.addFinalProcessingSlide((() => {
-                        this.localizeRecords(parseInt(o.data("pageId"), 10), parseInt(o.data("languageId"), 10), this.records).then((() => {
-                            Wizard.dismiss(), document.location.reload()
+                        this.localizeRecords(parseInt(o.data("pageId"), 10), parseInt(o.data("languageId"), 10), this.records).then((async e => {
+                            const result = await e.resolve();
+                            if (result && result.status === false) {
+                                Notification.error(TYPO3.lang["localization.labels.mistralTranslationFailure"], result.message);
+                                Wizard.dismiss()
+                            } else {
+                                Wizard.dismiss(), document.location.reload()
+                            }
+                        })).catch((() => {
+                            Notification.error(TYPO3.lang["localization.labels.mistralTranslationFailure"]);
+                            Wizard.dismiss()
                         }))
                     })).then((() => {
                         Wizard.show(), Wizard.getComponent().on("click", ".t3js-localization-option", (e => {
@@ -324,9 +340,29 @@ class Localization {
                                              }
                                          }))
                                  }
+                                 if(t.val()=='localizemistralai'){
+                                    //check mistralai  settings
+                                    this.mistralSettings().then((async a => {
+                                             const responseMistralai = await a.resolve();
+
+                                             if(responseMistralai['status'] === false){
+
+                                                var divMistral  = $('#mistralaiText', window.parent.document);
+                                                if(divMistral.find('.alert-danger').length == 0){
+                                                    var errorMsg = (responseMistralai['message']!='') ? responseMistralai['message'] : TYPO3.lang["localization.labels.mistralSettingsFailure"];
+                                                    divMistral.prepend("<div class='alert alert-danger' id='alertClose'>  <a href='#'' class='close'  data-dismiss='alert' aria-label='close'>&times;</a>"+errorMsg+"</div>");
+                                                    var mistralaiText = $('#alertClose', window.parent.document);
+                                                    $(mistralaiText).fadeTo(1600, 500).slideUp(500, function(){
+                                                        $(mistralaiText).alert('close');
+                                                    });
+                                                }
+                                                Wizard.lockNextStep();
+                                             }
+                                         }))
+                                 }
 
                             }
-                            
+
                             this.localizationMode = t.val(), Wizard.unlockNextStep()
                         }))
                     }))
@@ -339,6 +375,7 @@ class Localization {
         }))
         }))
             }))
+        }))
         }))
     }
     loadAvailableLanguages(e, a, m) {
@@ -406,8 +443,15 @@ class Localization {
     }
     cohereSettings(e, a) {
         return new AjaxRequest(TYPO3.settings.ajaxUrls.records_localizecohere).withQueryArguments({
-            pageId: e,           
-            destLanguageId: a,           
+            pageId: e,
+            destLanguageId: a,
+        }).get()
+
+    }
+    mistralSettings(e, a) {
+        return new AjaxRequest(TYPO3.settings.ajaxUrls.records_localizemistral).withQueryArguments({
+            pageId: e,
+            destLanguageId: a,
         }).get()
 
     }

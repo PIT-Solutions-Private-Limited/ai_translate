@@ -39,6 +39,7 @@ namespace PITS\AiTranslate\Override;
  use PITS\AiTranslate\Service\GeminiTranslateService;
  use PITS\AiTranslate\Service\ClaudeTranslateService;
  use PITS\AiTranslate\Service\CohereTranslateService;
+use PITS\AiTranslate\Service\MistralTranslateService;
  use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 
 /**
@@ -91,7 +92,12 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
      * @var string
      */
 
-     const ACTION_LOCALIZECOHEREAI = 'localizecohereai';     
+     const ACTION_LOCALIZECOHEREAI = 'localizecohereai';
+
+    /**
+     * @var string
+     */
+    const ACTION_LOCALIZEMISTRALAI = 'localizemistralai';
 
     /**
      * @param ServerRequestInterface $request
@@ -127,7 +133,12 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
     /**
      * @var \PITS\AiTranslate\Service\CohereTranslateService
      */
-    protected $cohereAiService;        
+    protected $cohereAiService;
+
+    /**
+     * @var \PITS\AiTranslate\Service\MistralTranslateService
+     */
+    protected $mistralAiService;
 
     /**
      * @var \TYPO3\CMS\Core\Page\PageRenderer
@@ -146,6 +157,7 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         $this->geminiAiService = GeneralUtility::makeInstance(GeminiTranslateService::class);
         $this->claudeAiService = GeneralUtility::makeInstance(ClaudeTranslateService::class);
         $this->cohereAiService = GeneralUtility::makeInstance(CohereTranslateService::class);
+        $this->mistralAiService = GeneralUtility::makeInstance(MistralTranslateService::class);
         $this->pageRenderer = GeneralUtility::makeInstance(PageRenderer::class);
         $this->pageRenderer->addInlineLanguageLabelFile('EXT:ai_translate/Resources/Private/Language/locallang.xlf');
     }
@@ -229,7 +241,8 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         if ($params['action'] !== static::ACTION_COPY && $params['action'] !== static::ACTION_LOCALIZE && $params['action'] !== static::ACTION_LOCALIZEDEEPL 
         && $params['action'] !== static::ACTION_LOCALIZEDEEPL_AUTO && $params['action'] !== static::ACTION_LOCALIZEGOOGLE 
         && $params['action'] !== static::ACTION_LOCALIZEGOOGLE_AUTO && $params['action'] !== static::ACTION_LOCALIZEOPENAI
-        && $params['action'] !== static::ACTION_LOCALIZEGEMINIAI  && $params['action'] !== static::ACTION_LOCALIZECLAUDEAI && $params['action'] !== static::ACTION_LOCALIZECOHEREAI) {
+        && $params['action'] !== static::ACTION_LOCALIZEGEMINIAI  && $params['action'] !== static::ACTION_LOCALIZECLAUDEAI && $params['action'] !== static::ACTION_LOCALIZECOHEREAI
+        && $params['action'] !== static::ACTION_LOCALIZEMISTRALAI) {
             $response = new Response('php://temp', 400, ['Content-Type' => 'application/json; charset=utf-8']);
             $response->getBody()->write('Invalid action "' . $params['action'] . '" called.');
             return $response;
@@ -243,7 +256,11 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
             $params['uidList']
         );
 
-        $this->process($params);
+        try {
+            $this->process($params);
+        } catch (\RuntimeException $e) {
+            return new JsonResponse(['status' => false, 'message' => $e->getMessage()]);
+        }
 
         return new JsonResponse([]);
     }
@@ -273,7 +290,8 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
                     || $params['action'] === static::ACTION_LOCALIZEOPENAI
                     || $params['action'] === static::ACTION_LOCALIZEGEMINIAI 
                     || $params['action'] === static::ACTION_LOCALIZECLAUDEAI 
-                    || $params['action'] === static::ACTION_LOCALIZECOHEREAI) {
+                    || $params['action'] === static::ACTION_LOCALIZECOHEREAI
+                    || $params['action'] === static::ACTION_LOCALIZEMISTRALAI) {
                     $command = [
                         'localize' => $destLanguageId,
                     ];
@@ -309,6 +327,9 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
                 break;
             case static::ACTION_LOCALIZECOHEREAI:
                 $customMode = 'cohereai';
+                break;
+            case static::ACTION_LOCALIZEMISTRALAI:
+                $customMode = 'mistralai';
                 break;
         }
         if ($customMode) {
@@ -446,7 +467,26 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
         $result = json_encode($result);
         echo $result;
         exit;
-    }    
+    }
+
+    /**
+     * check mistral Settings (model,apikey).
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return array
+     */
+    public function checkmistralSettings(ServerRequestInterface $request)
+    {
+        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)->get('ai_translate');
+        if (($extConf['openmistralapiKey'] ?? null) != null && ($extConf['openmistralapiModel'] ?? null) != null) {
+            $result = $this->mistralAiService->validateCredentials();
+        } else {
+            $result['status']  = false;
+            $result['message'] = '';
+        }
+
+        return new JsonResponse($result);
+    }
 
     /**
      * Return source language Id from source language string
@@ -478,7 +518,8 @@ class LocalizationController extends \TYPO3\CMS\Backend\Controller\Page\Localiza
 		$result['enableGemini'] = $extConf['enableGemini'];
         $result['enableClaude'] = $extConf['enableClaude'];
         $result['enableCohere'] = $extConf['enableCohere'];
-        
+        $result['enableMistral'] = $extConf['enableMistral'] ?? 0;
+
         return new JsonResponse($result);
         
     }	

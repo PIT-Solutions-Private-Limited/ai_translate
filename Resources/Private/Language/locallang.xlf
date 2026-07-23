@@ -34,7 +34,11 @@
             <trans-unit id="localize.educate.cohereai" xml:space="preserve">
                 <source>The process is straightforward – simply provide the text you need translated, and Cohere will quickly generate the translation in your desired target language. Please note that the translation is limited to AI's Capabilities.
                 </source>
-            </trans-unit>           
+            </trans-unit>
+            <trans-unit id="localize.educate.mistralai" xml:space="preserve">
+                <source>The process is straightforward – simply provide the text you need translated, and Mistral AI will quickly generate the translation in your desired target language. Please note that the translation is limited to AI's Capabilities.
+                </source>
+            </trans-unit>
             <trans-unit id="deepl_settings" xml:space="preserve">
                 <source>AI Translate Settings</source>
             </trans-unit>
@@ -82,7 +86,10 @@
             </trans-unit>
             <trans-unit id="localize.wizard.button.cohereai" xml:space="preserve">
                 <source><![CDATA[Translate<br>(Cohere)]]></source>
-            </trans-unit>            
+            </trans-unit>
+            <trans-unit id="localize.wizard.button.mistralai" xml:space="preserve">
+                <source><![CDATA[Translate<br>(Mistral)]]></source>
+            </trans-unit>
             <trans-unit id="localization.labels.deeplSettingsFailure" xml:space="preserve">
                 <source>Please complete missing deepl configurations.</source>
             </trans-unit>
@@ -98,7 +105,16 @@
             <trans-unit id="localization.labels.claudeSettingsFailure" xml:space="preserve">
                 <source>Please complete missing Claude configurations.</source>
             </trans-unit>
-            
+            <trans-unit id="localization.labels.cohereSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Cohere configurations.</source>
+            </trans-unit>
+            <trans-unit id="localization.labels.mistralSettingsFailure" xml:space="preserve">
+                <source>Please complete missing Mistral configurations.</source>
+            </trans-unit>
+            <trans-unit id="localization.labels.mistralTranslationFailure" xml:space="preserve">
+                <source>Mistral translation failed. Some records may not have been translated.</source>
+            </trans-unit>
+
         </body>
     </file>
 </xliff>

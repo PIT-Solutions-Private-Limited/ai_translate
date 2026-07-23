@@ -12,7 +12,7 @@
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'Ai Translate',
-    'description' => 'This extension provides option to translate content element, and tca record texts to Deepl, Google, OpenAI, Gemini and Cohere supported languages.',
+    'description' => 'AI Translate brings fast, flexible translation directly into the TYPO3 backend. Translate content elements and TCA records automatically using leading AI and translation services - including Google Translate, DeepL, OpenAI (ChatGPT), Gemini, Claude and Cohere. Editors can auto-detect source language or select languages manually, making it a powerful auto translate and language translation solution for multilingual TYPO3 websites',
     'category' => 'module',
     'author' => 'PIT Solutions',
     'author_email' => 'contact@pitsolutions.com',

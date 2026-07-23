@@ -1,8 +1,8 @@
 # AI Translate
 
-This extension provides option to translate content elements and tca record fields to desired language(supported by deepl). As a fallback, Google,openai,gemini,claude and cohere translate option is also provided as they provide support for many languages that deepl isn't providing.
+This extension provides option to translate content elements and tca record fields to desired language(supported by deepl). As a fallback, Google,openai,gemini,claude,cohere and mistral translate option is also provided as they provide support for many languages that deepl isn't providing.
 For both Deepl translate and Google translate, there are two modes-normal and autodetect, where the later autodetects source language and translates it to the desired language.
-For openai,gemini , claude and cohere autodetects source language and translates it to the desired language.
+For openai,gemini , claude, cohere and mistral autodetects source language and translates it to the desired language.
 
 ## Installation
 
@@ -27,7 +27,7 @@ Watch our instruction video to get an overview of the extension and how to use i
 
 - TYPO3 11 (2.1.2)
 - TYPO3 12 (3.1.2)
-- TYPO3 13 (4.0.1)
+- TYPO3 13 (4.0.5)
 
 ## Extension Configuartion
 
@@ -46,6 +46,7 @@ Once the extension is installed and Api key provided we are good to go for trans
 - Gemini Translate
 - Claude Translate
 - Cohere Translate
+- Mistral Translate
 
 ## Claude AI
 
@@ -78,5 +79,43 @@ For example you can assign German under Austrian German sys language if you wish
 
 ## Changelog
 
-- 4.1.0: Initial release
+### 4.0.5 (Latest)
+
+**stable** | TYPO3 13 LTS (>=13.0.0 <=13.4.99)
+
+- [FEATURE] Mistral AI provider integration
+
+Supported Mistral models (from smallest to largest):
+
+| Model | What it is | Speed / Cost | Translation quality |
+| --- | --- | --- | --- |
+| `ministral-8b-latest` | Tiny 8B "edge" model | Fastest, cheapest (~$0.10 per M tokens) | Weakest - fine for simple sentences, more likely to make mistakes with idioms, terminology, or instructions |
+| `mistral-small-latest` | Small workhorse model (~24B) | Fast, cheap | Good for routine content - a sensible default |
+| `mistral-medium-latest` | Mid-tier model | Moderate (~4-6x small's price) | Noticeably better nuance, terminology consistency, and instruction-following |
+| `mistral-large-latest` | Flagship, most capable | Slowest, most expensive (~10-20x small) | Best - worth it for marketing copy or legally sensitive text where phrasing matters |
+
+### 4.0.4 - January 30, 2026
+
+**stable** | TYPO3 13 LTS (>=13.0.0 <=13.4.99)
+
+- [BUGFIX] Deprecated authentication in Deepl #24
+
+### 4.0.2 - October 30, 2025
+
+**stable** | TYPO3 13 LTS (>=13.0.0 <=13.4.99)
+
+This is a maintenance release for TYPO3 13.4 LTS.
+
+List of all changes:
+
+- [BUGFIX] Problem in Multidomain installation #10
+- [BUGFIX] Remove usage of TYPO3\CMS\Core\TypoScript\TemplateService
+- [BUGFIX] Error while accessing GLOBALS variable
+
+### 4.0.0 - June 19, 2025
+
+**stable** | TYPO3 13 LTS (>=13.0.0 <=13.4.99)
+
+- Added TYPO3 13 LTS support
+- Cohere model integration in proper way
 

@@ -36,6 +36,7 @@ use PITS\AiTranslate\Service\OpenAiService;
 use PITS\AiTranslate\Service\GeminiTranslateService;
 use PITS\AiTranslate\Service\ClaudeTranslateService;
 use PITS\AiTranslate\Service\CohereTranslateService;
+use PITS\AiTranslate\Service\MistralTranslateService;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use Psr\Http\Message\ServerRequestInterface;
@@ -75,7 +76,12 @@ class TranslateHook
     /**
      * @var \PITS\AiTranslate\Service\CohereTranslateService
      */
-    protected $cohereAiService;     
+    protected $cohereAiService;
+
+    /**
+     * @var \PITS\AiTranslate\Service\MistralTranslateService
+     */
+    protected $mistralAiService;
 
     /**
      * @var \PITS\AiTranslate\Domain\Repository\DeeplSettingsRepository
@@ -113,6 +119,7 @@ class TranslateHook
         $this->geminiAiService         = GeneralUtility::makeInstance(GeminiTranslateService::class);
         $this->claudeAiService         = GeneralUtility::makeInstance(ClaudeTranslateService::class);
         $this->cohereAiService         = GeneralUtility::makeInstance(CohereTranslateService::class);
+        $this->mistralAiService        = GeneralUtility::makeInstance(MistralTranslateService::class);
         $this->deeplSettingsRepository = GeneralUtility::makeInstance(DeeplSettingsRepository::class);
         $this->siteFinder = GeneralUtility::makeInstance(SiteFinder::class);
     }
@@ -332,11 +339,39 @@ class TranslateHook
                         if (!empty($selectedTCAvalues)) {
                             $response = $this->cohereAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
                         }
-                    }   
+                    }
+                    if(is_array($response) && isset($response['status'])){
+                        if(!$response['status']){
+                            echo $response['message']; exit;
+                        }
+                    }
                     $content = $response;
-   
+
                 }
-            } 
+            }
+            elseif ($customMode == 'mistralai') {
+                if (in_array(strtoupper($targetLanguage['twoLetterIsoCode']), $this->deeplService->apiSupportedLanguages))
+                {
+                    if ($tablename == 'tt_content') {
+                        $response = $this->mistralAiService->translateRequest($content, $targetLanguage['twoLetterIsoCode'], $deeplSourceIso);
+                    }
+                    else {
+                        $currentRecord     = BackendUtility::getRecord($tablename, (int) $currectRecordId);
+                        $selectedTCAvalues = $this->getTemplateValues($currentRecord, $tablename, $field, $content);
+
+                        if (!empty($selectedTCAvalues)) {
+                            $response = $this->mistralAiService->translateRequest($selectedTCAvalues, $targetLanguage['twoLetterIsoCode'], $sourceLanguage['twoLetterIsoCode']);
+                        }
+                    }
+                    if(is_array($response) && isset($response['status'])){
+                        if(!$response['status']){
+                            throw new \RuntimeException($response['message'] ?: 'Mistral translation failed.', 1753020000);
+                        }
+                    }
+                    $content = $response;
+
+                }
+            }
 
         }
     }

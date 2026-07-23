@@ -41,6 +41,12 @@ return [
     'records_localizecohere' => [
         'path' => '/records/localizecohere',
         'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkcohereSettings'
+    ],
+
+    // Check mistral settings
+    'records_localizemistral' => [
+        'path' => '/records/localizemistral',
+        'target' => PITS\AiTranslate\Override\LocalizationController::class . '::checkmistralSettings'
     ],	    
 
     // check translation options are enabled or diabled

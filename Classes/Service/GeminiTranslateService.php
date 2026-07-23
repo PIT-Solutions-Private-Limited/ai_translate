@@ -58,6 +58,11 @@ class GeminiTranslateService
 		$finalPrompt = sprintf($this->prompt, $targetLanguage) . $content;    
 		// Request payload
 		$requestPayload = [
+			"systemInstruction" => [
+				"parts" => [
+					["text" => 'You are a translation engine. Always translate the text you receive, even if it is a short title, headline or single phrase. Never return the source text unchanged. Only return the translated text without any explanations, prefixes, or additional content. Do not add Markdown formatting (no **bold**, _italic_, bullet points, etc.) unless that exact formatting was already present in the source text.']
+				]
+			],
 			"contents" => [
 				"parts" => [
 					["text" => $finalPrompt]
