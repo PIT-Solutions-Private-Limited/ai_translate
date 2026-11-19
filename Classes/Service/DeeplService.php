@@ -92,7 +92,6 @@ class DeeplService
      */
     public function translateRequest($content, $targetLanguage, $sourceLanguage)
     {
-        $postFieldString='';
         $postFields = [
             'text'         => $content,
             'source_lang'  => urlencode($sourceLanguage),
@@ -100,18 +99,11 @@ class DeeplService
             'tag_handling' => urlencode('xml'),
         ];
 
-        foreach ($postFields as $key => $value) {
-            $postFieldString .= $key . '=' . $value . '&';
-        }
-        rtrim($postFieldString, '&');
-        $contentLength = mb_strlen($postFieldString, '8bit');
-
         try {
             $response = $this->requestFactory->request($this->apiUrl, 'POST', [
                 'form_params' => $postFields,
                 'headers'     => [
-                    'Content-Type' => 'application/x-www-form-urlencoded',
-                    'Content-Length' => $contentLength,
+                    // Content-Type and Content-Length are set by Guzzle from form_params.
                     'Authorization' => 'DeepL-Auth-Key '.$this->apiKey
                 ],
             ]);
