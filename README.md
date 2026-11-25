@@ -25,7 +25,7 @@ Watch our instruction video to get an overview of the extension and how to use i
 
 - TYPO3 11 (2.1.2)
 - TYPO3 12 (3.1.2)
-- TYPO3 13 (4.0.5)
+- TYPO3 13 (4.0.6)
 
 ## Extension Configuartion
 
@@ -77,7 +77,13 @@ For example you can assign German under Austrian German sys language if you wish
 
 ## Changelog
 
-### 4.0.5 (Latest)
+### 4.0.6 (Latest)
+
+**stable** | TYPO3 13 LTS (>=13.0.0 <=13.4.99)
+
+- [BUGFIX] Translation broken on TYPO3 13.4.40 (newer Guzzle): `Passing int to request option "headers.Content-Length" is invalid`. Manual `Content-Length`/`Content-Type` headers removed from the DeepL and Google Translate requests; Guzzle sets them from `form_params`.
+
+### 4.0.5
 
 **stable** | TYPO3 13 LTS (>=13.0.0 <=13.4.99)
 

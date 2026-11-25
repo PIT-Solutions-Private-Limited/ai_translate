@@ -116,18 +116,9 @@ class GoogleTranslateService
             }
         }
 
-        // URL-ify the data for the POST
-        $fields_string = "";
-        foreach ($fields as $key => $value) {
-            $fields_string .= $key . '=' . $value . '&';
-        }
-
-        rtrim($fields_string, '&');
-        $contentLength = mb_strlen($fields_string, '8bit');
         try {
             $response = $this->requestFactory->request($url, 'POST', [
                 'form_params' => $fields,
-                'headers'     => ['Content-Type: application/x-www-form-urlencoded', 'Content-Length:' . $contentLength, 'charset=utf-8'],
             ]);
         } catch (ClientException $e) {
             $result['status']  = false;
